@@ -9,7 +9,7 @@ package uk.co.grahamcox.worldbuilder.webapp.jsonapi.response
  * @param relatedLinkGenerator The mechanism to generate the Related Link to the relationship
  */
 class JsonApiRelatedResourceGenerator<Input, Related>(val type: String,
-                                                      val resourceExtractor: (Input) -> Related,
+                                                      val resourceExtractor: (Input) -> Related?,
                                                       val idGenerator: (Related) -> Any,
                                                       val selfLinkGenerator: ((Input, Related) -> String?)? = null,
                                                       val relatedLinkGenerator: (Input, Related) -> String) {
@@ -37,12 +37,14 @@ class JsonApiSerializerImpl<Input>(private val type: String,
      * @return The JSON API response for the data
      */
     override fun serialize(input: Input): JsonApiResponse<JsonApiResource> {
-        val relationships = if (relatedResources.isNotEmpty()) {
-            relatedResources.mapValues { entry ->
-                val relatedResourceGenerator: JsonApiRelatedResourceGenerator<Input, Any> = entry.value as JsonApiRelatedResourceGenerator<Input, Any>
-                val resource = relatedResourceGenerator.resourceExtractor(input)
+        val relationships = mutableMapOf<String, JsonApiRelationship>()
 
-                JsonApiRelationship(
+        relatedResources.forEach { entry ->
+            val relatedResourceGenerator: JsonApiRelatedResourceGenerator<Input, Any> = entry.value as JsonApiRelatedResourceGenerator<Input, Any>
+            val resource = relatedResourceGenerator.resourceExtractor(input)
+
+            if(resource != null) {
+                val relationship = JsonApiRelationship(
                         links = JsonApiRelationshipLinks(
                                 self = relatedResourceGenerator.selfLinkGenerator?.invoke(input, resource),
                                 related = relatedResourceGenerator.relatedLinkGenerator(input, resource)
@@ -52,9 +54,9 @@ class JsonApiSerializerImpl<Input>(private val type: String,
                                 id = relatedResourceGenerator.idGenerator(resource)
                         )
                 )
+
+                relationships.put(entry.key, relationship)
             }
-        } else {
-            null
         }
 
         return JsonApiResponse(
