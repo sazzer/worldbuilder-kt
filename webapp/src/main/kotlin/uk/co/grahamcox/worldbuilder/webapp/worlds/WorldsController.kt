@@ -122,6 +122,27 @@ open class WorldsController {
      */
     @RequestMapping("/{id}")
     open fun getWorld(@PathVariable("id") id: String) : JsonApiResponse<JsonApiResource> {
+        val world = World(id = id,
+                name = "Discworld",
+                created = Clock.systemUTC().instant(),
+                updated = Clock.systemUTC().instant().plusSeconds(100))
+
+        val serializer = JsonApiSerializerImpl(
+                type = "world",
+                idGenerator = World::id,
+                attributeGenerator = mapOf(
+                        "name" to World::name,
+                        "created" to World::created,
+                        "updated" to World::updated
+                ),
+                selfLinkGenerator = { world -> "/api/worlds/${world.id}" }
+        )
+
+        val response = serializer.serialize(world)
+
+        return response
+
+        /*
         val response = JsonApiResponse(
                 links = JsonApiTopLevelLinks(
                         self = "/api/worlds/${id}"
@@ -162,5 +183,6 @@ open class WorldsController {
         )
 
         return response
+        */
     }
 }
