@@ -44,34 +44,43 @@ class JsonApiSerializerImpl<Input>(private val type: String,
         val relationships = mutableMapOf<String, JsonApiRelationship>()
         val included = mutableListOf<JsonApiResource>()
 
+        val alreadyIncluded = mutableMapOf<String, MutableSet<Any>>()
+
         relatedResources.forEach { entry ->
             val relatedResourceGenerator: JsonApiRelatedResourceGenerator<Input, Any> = entry.value as JsonApiRelatedResourceGenerator<Input, Any>
             val resource = relatedResourceGenerator.resourceExtractor(input)
 
             if(resource != null) {
                 val id = relatedResourceGenerator.idGenerator(resource)
+                val type = relatedResourceGenerator.type
+
                 val relationship = JsonApiRelationship(
                         links = JsonApiRelationshipLinks(
                                 self = relatedResourceGenerator.relationshipLinkGenerator?.invoke(input, resource),
                                 related = relatedResourceGenerator.relatedLinkGenerator(input, resource)
                         ),
                         data = JsonApiResourceIdentifier(
-                                type = relatedResourceGenerator.type,
+                                type = type,
                                 id = id
                         )
                 )
-
-                val includedResource = JsonApiResource(
-                        type = relatedResourceGenerator.type,
-                        id = id,
-                        attributes = relatedResourceGenerator.attributeGenerator.mapValues { it.value(resource) },
-                        links = JsonApiResourceLinks(
-                                self = relatedResourceGenerator.selfLinkGenerator(input, resource)
-                        )
-                )
-
                 relationships.put(entry.key, relationship)
-                included.add(includedResource)
+
+                if (!(alreadyIncluded.get(type)?.contains(id) ?: false)) {
+                    val includedResource = JsonApiResource(
+                            type = type,
+                            id = id,
+                            attributes = relatedResourceGenerator.attributeGenerator.mapValues { it.value(resource) },
+                            links = JsonApiResourceLinks(
+                                    self = relatedResourceGenerator.selfLinkGenerator(input, resource)
+                            )
+                    )
+
+                    included.add(includedResource)
+                    alreadyIncluded.getOrPut(type) {
+                        mutableSetOf<Any>()
+                    }.add(id)
+                }
             }
         }
 

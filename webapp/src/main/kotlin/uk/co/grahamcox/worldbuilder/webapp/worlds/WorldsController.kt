@@ -147,7 +147,19 @@ open class WorldsController {
                                 attributeGenerator = mapOf(
                                         "name" to User::name
                                 )
+                        ),
+                        "lastEdited" to JsonApiRelatedResourceGenerator(
+                                type = "user",
+                                resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
+                                idGenerator = User::id,
+                                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/owner" },
+                                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/owner" },
+                                selfLinkGenerator = { world, user -> "/api/users/${user.id}" },
+                                attributeGenerator = mapOf(
+                                        "name" to User::name
+                                )
                         )
+
                 )
         )
 
