@@ -151,51 +151,6 @@ open class WorldsController {
                 )
         )
 
-        val response = serializer.serialize(world)
-
-        return response
-
-        /*
-        val response = JsonApiResponse(
-                links = JsonApiTopLevelLinks(
-                        self = "/api/worlds/${id}"
-                ),
-                data = JsonApiResource(
-                        type = "world",
-                        id = id,
-                        attributes = mapOf(
-                                "name" to "Discworld",
-                                "created" to Clock.systemUTC().instant(),
-                                "updated" to Clock.systemUTC().instant().plusSeconds(100)
-                        ),
-                        relationships = mapOf(
-                                "owner" to JsonApiRelationship(
-                                        links = JsonApiRelationshipLinks(
-                                                self = "/api/worlds/${id}/relationships/owner",
-                                                related = "/api/worlds/${id}/owner"
-                                        ),
-                                        data = JsonApiResourceIdentifier(
-                                                type = "user",
-                                                id = 12345
-                                        )
-                                )
-                        )
-                ),
-                included = arrayOf(
-                        JsonApiResource(
-                                type = "user",
-                                id = 12345,
-                                attributes = mapOf(
-                                        "name" to "Terry Pratchett"
-                                ),
-                                links = JsonApiResourceLinks(
-                                        self = "/api/users/12345"
-                                )
-                        )
-                )
-        )
-
-        return response
-        */
+        return serializer.serialize(world)
     }
 }
