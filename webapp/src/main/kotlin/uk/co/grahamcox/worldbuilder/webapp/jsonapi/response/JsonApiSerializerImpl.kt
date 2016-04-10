@@ -2,28 +2,32 @@ package uk.co.grahamcox.worldbuilder.webapp.jsonapi.response
 
 /**
  * Mechanism by which a related resource can be extracted
- * @param type The type to use in the relationship
- * @param resourceExtractor The mechanism to extract the relationship entity from the input entity
- * @param idGenerator The mechanism to generate the ID of the relationship entity
- * @param selfLinkGenerator The mechanism to generate the Self Link to the relationship
- * @param relatedLinkGenerator The mechanism to generate the Related Link to the relationship
+ * @property type The type to use in the relationship
+ * @property resourceExtractor The mechanism to extract the relationship entity from the input entity
+ * @property idGenerator The mechanism to generate the ID of the relationship entity
+ * @property relationshipLinkGenerator The mechanism to generate the Self Link to the relationship
+ * @property relatedLinkGenerator The mechanism to generate the Related Link to the relationship
+ * @property selfLinkGenerator The mechanism to generate the Self Link to the related resource
+ * @property attributeGenerator The mechanism to generate the attributes of the related resource
  */
 class JsonApiRelatedResourceGenerator<Input, Related>(val type: String,
                                                       val resourceExtractor: (Input) -> Related?,
                                                       val idGenerator: (Related) -> Any,
-                                                      val selfLinkGenerator: ((Input, Related) -> String?)? = null,
-                                                      val relatedLinkGenerator: (Input, Related) -> String) {
+                                                      val relationshipLinkGenerator: ((Input, Related) -> String?)? = null,
+                                                      val relatedLinkGenerator: (Input, Related) -> String,
+                                                      val selfLinkGenerator: (Input, Related) -> String,
+                                                      val attributeGenerator: Map<String, (Related) -> Any>) {
 
 }
 
 /**
  * Implementation of the JSON API Serializer
  * @param <Input> the Input type to serialize
- * @param type The type to use in the serialized resource
- * @param idGenerator The mechanism to extract the ID from the input data
- * @param attributeGenerator The mechanisms to extract the attributes from the input data
- * @param selfLinkGenerator The mechanism to generate the Self Link to the resource
- * @param relatedResources The details of the related resources
+ * @property type The type to use in the serialized resource
+ * @property idGenerator The mechanism to extract the ID from the input data
+ * @property attributeGenerator The mechanisms to extract the attributes from the input data
+ * @property selfLinkGenerator The mechanism to generate the Self Link to the resource
+ * @property relatedResources The details of the related resources
  */
 class JsonApiSerializerImpl<Input>(private val type: String,
                                    private val idGenerator: (Input) -> Any,
@@ -38,24 +42,36 @@ class JsonApiSerializerImpl<Input>(private val type: String,
      */
     override fun serialize(input: Input): JsonApiResponse<JsonApiResource> {
         val relationships = mutableMapOf<String, JsonApiRelationship>()
+        val included = mutableListOf<JsonApiResource>()
 
         relatedResources.forEach { entry ->
             val relatedResourceGenerator: JsonApiRelatedResourceGenerator<Input, Any> = entry.value as JsonApiRelatedResourceGenerator<Input, Any>
             val resource = relatedResourceGenerator.resourceExtractor(input)
 
             if(resource != null) {
+                val id = relatedResourceGenerator.idGenerator(resource)
                 val relationship = JsonApiRelationship(
                         links = JsonApiRelationshipLinks(
-                                self = relatedResourceGenerator.selfLinkGenerator?.invoke(input, resource),
+                                self = relatedResourceGenerator.relationshipLinkGenerator?.invoke(input, resource),
                                 related = relatedResourceGenerator.relatedLinkGenerator(input, resource)
                         ),
                         data = JsonApiResourceIdentifier(
                                 type = relatedResourceGenerator.type,
-                                id = relatedResourceGenerator.idGenerator(resource)
+                                id = id
+                        )
+                )
+
+                val includedResource = JsonApiResource(
+                        type = relatedResourceGenerator.type,
+                        id = id,
+                        attributes = relatedResourceGenerator.attributeGenerator.mapValues { it.value(resource) },
+                        links = JsonApiResourceLinks(
+                                self = relatedResourceGenerator.selfLinkGenerator(input, resource)
                         )
                 )
 
                 relationships.put(entry.key, relationship)
+                included.add(includedResource)
             }
         }
 
@@ -69,7 +85,7 @@ class JsonApiSerializerImpl<Input>(private val type: String,
                         attributes = attributeGenerator.mapValues { it.value(input) },
                         relationships = relationships
                 ),
-                included = null
+                included = included.toTypedArray()
         )
     }
 }
