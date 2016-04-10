@@ -135,7 +135,16 @@ open class WorldsController {
                         "created" to World::created,
                         "updated" to World::updated
                 ),
-                selfLinkGenerator = { world -> "/api/worlds/${world.id}" }
+                selfLinkGenerator = { world -> "/api/worlds/${world.id}" },
+                relatedResources = mapOf(
+                        "owner" to JsonApiRelatedResourceGenerator(
+                                type = "user",
+                                resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
+                                idGenerator = User::id,
+                                selfLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/owner" },
+                                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/owner" }
+                        )
+                )
         )
 
         val response = serializer.serialize(world)
