@@ -1,12 +1,14 @@
 package uk.co.grahamcox.worldbuilder.webapp.worlds
 
-import org.springframework.hateoas.mvc.ControllerLinkBuilder
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder
+import uk.co.grahamcox.worldbuilder.service.ResourceNotFoundException
+import uk.co.grahamcox.worldbuilder.service.users.User
+import uk.co.grahamcox.worldbuilder.service.worlds.World
+import uk.co.grahamcox.worldbuilder.service.worlds.WorldFinder
+import uk.co.grahamcox.worldbuilder.service.worlds.WorldId
 import uk.co.grahamcox.worldbuilder.webapp.jsonapi.response.*
-import java.time.Clock
 import kotlin.reflect.jvm.javaMethod
 
 /**
@@ -14,7 +16,7 @@ import kotlin.reflect.jvm.javaMethod
  */
 @RestController
 @RequestMapping("/api/worlds")
-open class WorldsController() {
+open class WorldsController(private val worldFinder: WorldFinder) {
     companion object {
         /** The resource type for the worlds resources */
         private val RESOURCE_TYPE = "world"
@@ -31,7 +33,7 @@ open class WorldsController() {
 
         /** The Self Link of a World */
         private val RESOURCE_SELF_LINK_GENERATOR = { world: World ->
-            MvcUriComponentsBuilder.fromMethod(WorldsController::getWorld.javaMethod, world.id)
+            MvcUriComponentsBuilder.fromMethod(WorldsController::class.java, WorldsController::getWorld.javaMethod, world.id.id)
                     .build()
                     .toUriString()
         }
@@ -39,24 +41,11 @@ open class WorldsController() {
         /** The relationship representing the owner of a world */
         private val OWNER_RELATIONSHIP_SCHEMA = JsonApiRelatedResourceSchema<World, User>(
                 type = "user",
-                resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
+                resourceExtractor = { world -> User(id = world.ownerId, name = "Terry Pratchett") },
                 idGenerator = User::id,
-                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/owner" },
-                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/owner" },
-                selfLinkGenerator = { world, user -> "/api/users/${user.id}" },
-                attributeGenerator = mapOf(
-                        "name" to User::name
-                )
-        )
-
-        /** The relationship representing who last edited a world */
-        private val EDITED_RELATIONSHIP_SCHEMA = JsonApiRelatedResourceSchema<World, User>(
-                type = "user",
-                resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
-                idGenerator = User::id,
-                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/edited" },
-                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/edited" },
-                selfLinkGenerator = { world, user -> "/api/users/${user.id}" },
+                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id.id}/relationships/owner" },
+                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id.id}/owner" },
+                selfLinkGenerator = { world, user -> "/api/users/${user.id.id}" },
                 attributeGenerator = mapOf(
                         "name" to User::name
                 )
@@ -64,8 +53,7 @@ open class WorldsController() {
 
         /** The complete set of relationships for a world */
         private val RESOURCE_RELATIONSHIPS = mapOf(
-                "owner" to OWNER_RELATIONSHIP_SCHEMA,
-                "edited" to EDITED_RELATIONSHIP_SCHEMA
+                "owner" to OWNER_RELATIONSHIP_SCHEMA
         )
     }
 
@@ -88,7 +76,11 @@ open class WorldsController() {
             resourceListGenerator = { worlds: List<World> -> worlds },
             idGenerator = RESOURCE_ID_GENERATOR,
             attributeGenerator = RESOURCE_ATTRIBUTES,
-            collectionSelfLinkGenerator = { worlds -> "/api/worlds" },
+            collectionSelfLinkGenerator = { worlds ->
+                MvcUriComponentsBuilder.fromMethod(WorldsController::class.java, WorldsController::getWorlds.javaMethod)
+                        .build()
+                        .toUriString()
+            },
             resourceSelfLinkGenerator = RESOURCE_SELF_LINK_GENERATOR,
             relatedResources = RESOURCE_RELATIONSHIPS
     )
@@ -99,16 +91,7 @@ open class WorldsController() {
      */
     @RequestMapping(produces = arrayOf("application/vnd.api+json"))
     open fun getWorlds() : JsonApiResponse<List<JsonApiResource>> {
-        val worlds = listOf(
-                World(id = "abcde",
-                        name = "Discworld",
-                        created = Clock.systemUTC().instant(),
-                        updated = Clock.systemUTC().instant().plusSeconds(100)),
-                World(id = "fghij",
-                        name = "Strata",
-                        created = Clock.systemUTC().instant(),
-                        updated = Clock.systemUTC().instant().plusSeconds(100))
-        )
+        val worlds = worldFinder.findWorlds()
 
         return collectionSerializer.serialize(worlds)
     }
@@ -120,11 +103,19 @@ open class WorldsController() {
      */
     @RequestMapping(value = "/{id}", produces = arrayOf("application/vnd.api+json"))
     open fun getWorld(@PathVariable("id") id: String) : JsonApiResponse<JsonApiResource> {
-        val world = World(id = id,
-                name = "Discworld",
-                created = Clock.systemUTC().instant(),
-                updated = Clock.systemUTC().instant().plusSeconds(100))
+        val world = worldFinder.findWorldById(WorldId(id))
 
         return resourceSerializer.serialize(world)
     }
+
+    /**
+     * Handler for when we try to load an unknown resource
+     * @param e The exception to handle
+     */
+    @ExceptionHandler(ResourceNotFoundException::class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleResourceNotFoundException(e: ResourceNotFoundException) = mapOf(
+            "status" to HttpStatus.NOT_FOUND.value().toString(),
+            "title" to e.message
+    )
 }
