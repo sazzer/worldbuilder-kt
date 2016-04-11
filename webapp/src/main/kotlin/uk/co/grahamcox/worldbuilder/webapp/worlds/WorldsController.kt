@@ -88,7 +88,7 @@ open class WorldsController {
                                 )
                         )
                 ),
-                included = arrayOf(
+                included = listOf(
                         JsonApiResource(
                                 type = "user",
                                 id = 12345,
@@ -127,7 +127,7 @@ open class WorldsController {
                 created = Clock.systemUTC().instant(),
                 updated = Clock.systemUTC().instant().plusSeconds(100))
 
-        val serializer = JsonApiSerializerImpl(
+        val serializer = JsonApiResourceSerializer(
                 type = "world",
                 idGenerator = World::id,
                 attributeGenerator = mapOf(
@@ -137,7 +137,7 @@ open class WorldsController {
                 ),
                 selfLinkGenerator = { world -> "/api/worlds/${world.id}" },
                 relatedResources = mapOf(
-                        "owner" to JsonApiRelatedResourceGenerator(
+                        "owner" to JsonApiRelatedResourceSchema(
                                 type = "user",
                                 resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
                                 idGenerator = User::id,
@@ -148,7 +148,7 @@ open class WorldsController {
                                         "name" to User::name
                                 )
                         ),
-                        "lastEdited" to JsonApiRelatedResourceGenerator(
+                        "lastEdited" to JsonApiRelatedResourceSchema(
                                 type = "user",
                                 resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
                                 idGenerator = User::id,

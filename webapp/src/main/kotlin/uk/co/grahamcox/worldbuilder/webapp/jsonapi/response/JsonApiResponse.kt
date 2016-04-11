@@ -12,4 +12,4 @@ import com.fasterxml.jackson.annotation.JsonInclude
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 class JsonApiResponse<T>(val links: JsonApiTopLevelLinks,
                       val data: T,
-                      val included: Array<JsonApiResource>? = null)
+                      val included: List<JsonApiResource>? = null)
