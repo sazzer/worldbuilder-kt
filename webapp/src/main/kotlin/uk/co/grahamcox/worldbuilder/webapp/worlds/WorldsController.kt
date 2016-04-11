@@ -18,101 +18,57 @@ open class WorldsController {
      * @return the worlds
      */
     @RequestMapping
-    open fun getWorlds() : JsonApiResponse<Array<JsonApiResource>> {
-        val response = JsonApiResponse(
-                links = JsonApiTopLevelLinks(
-                        self = "/api/worlds"
+    open fun getWorlds() : JsonApiResponse<List<JsonApiResource>> {
+        val worlds = listOf(
+                World(id = "abcde",
+                        name = "Discworld",
+                        created = Clock.systemUTC().instant(),
+                        updated = Clock.systemUTC().instant().plusSeconds(100)),
+                World(id = "fghij",
+                        name = "Strata",
+                        created = Clock.systemUTC().instant(),
+                        updated = Clock.systemUTC().instant().plusSeconds(100))
+        )
+
+        val serializer = JsonApiCollectionSerializer(
+                type = "world",
+                resourceListGenerator = { worlds: List<World> -> worlds },
+                idGenerator = World::id,
+                attributeGenerator = mapOf(
+                        "name" to World::name,
+                        "created" to World::created,
+                        "updated" to World::updated
                 ),
-                data = arrayOf(
-                        JsonApiResource(
-                            type = "world",
-                            id = "abcde",
-                            attributes = mapOf(
-                                    "name" to "Discworld",
-                                    "created" to Clock.systemUTC().instant(),
-                                    "updated" to Clock.systemUTC().instant().plusSeconds(100)
-                            ),
-                            relationships = mapOf(
-                                    "owner" to JsonApiRelationship(
-                                            links = JsonApiRelationshipLinks(
-                                                    self = "/api/worlds/abcde/relationships/owner",
-                                                    related = "/api/worlds/abcde/owner"
-                                            ),
-                                            data = JsonApiResourceIdentifier(
-                                                    type = "user",
-                                                    id = 12345
-                                            )
-                                    )
-                            )
-                        ),
-                        JsonApiResource(
-                                type = "world",
-                                id = "fghij",
-                                attributes = mapOf(
-                                        "name" to "Strata",
-                                        "created" to Clock.systemUTC().instant(),
-                                        "updated" to Clock.systemUTC().instant().plusSeconds(100)
-                                ),
-                                relationships = mapOf(
-                                        "owner" to JsonApiRelationship(
-                                                links = JsonApiRelationshipLinks(
-                                                        self = "/api/worlds/fghij/relationships/owner",
-                                                        related = "/api/worlds/fghij/owner"
-                                                ),
-                                                data = JsonApiResourceIdentifier(
-                                                        type = "user",
-                                                        id = 12345
-                                                )
-                                        )
+                collectionSelfLinkGenerator = { worlds -> "/api/worlds" },
+                resourceSelfLinkGenerator = { world -> "/api/worlds/${world.id}" },
+                relatedResources = mapOf(
+                        "owner" to JsonApiRelatedResourceSchema(
+                                type = "user",
+                                resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
+                                idGenerator = User::id,
+                                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/owner" },
+                                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/owner" },
+                                selfLinkGenerator = { world, user -> "/api/users/${user.id}" },
+                                attributeGenerator = mapOf(
+                                        "name" to User::name
                                 )
                         ),
-                        JsonApiResource(
-                                type = "world",
-                                id = "klmno",
-                                attributes = mapOf(
-                                        "name" to "Middle Earth",
-                                        "created" to Clock.systemUTC().instant(),
-                                        "updated" to Clock.systemUTC().instant().plusSeconds(100)
-                                ),
-                                relationships = mapOf(
-                                        "owner" to JsonApiRelationship(
-                                                links = JsonApiRelationshipLinks(
-                                                        self = "/api/worlds/klmno/relationships/owner",
-                                                        related = "/api/worlds/klmno/owner"
-                                                ),
-                                                data = JsonApiResourceIdentifier(
-                                                        type = "user",
-                                                        id = 12346
-                                                )
-                                        )
+                        "lastEdited" to JsonApiRelatedResourceSchema(
+                                type = "user",
+                                resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
+                                idGenerator = User::id,
+                                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/edited" },
+                                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/edited" },
+                                selfLinkGenerator = { world, user -> "/api/users/${user.id}" },
+                                attributeGenerator = mapOf(
+                                        "name" to User::name
                                 )
                         )
-                ),
-                included = listOf(
-                        JsonApiResource(
-                                type = "user",
-                                id = 12345,
-                                attributes = mapOf(
-                                        "name" to "Terry Pratchett"
-                                ),
-                                links = JsonApiResourceLinks(
-                                        self = "/api/users/12345"
-                                )
-                        ),
-                        JsonApiResource(
-                                type = "user",
-                                id = 12346,
-                                attributes = mapOf(
-                                        "name" to "J. R. R. Tolkien"
-                                ),
-                                links = JsonApiResourceLinks(
-                                        self = "/api/users/12346"
-                                )
-                        )
+
                 )
         )
 
-        return response
+        return serializer.serialize(worlds)
     }
 
     /**
@@ -152,8 +108,8 @@ open class WorldsController {
                                 type = "user",
                                 resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
                                 idGenerator = User::id,
-                                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/owner" },
-                                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/owner" },
+                                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/edited" },
+                                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/edited" },
                                 selfLinkGenerator = { world, user -> "/api/users/${user.id}" },
                                 attributeGenerator = mapOf(
                                         "name" to User::name

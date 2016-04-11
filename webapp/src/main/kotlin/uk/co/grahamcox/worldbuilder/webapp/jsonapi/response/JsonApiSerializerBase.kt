@@ -1,6 +1,6 @@
 package uk.co.grahamcox.worldbuilder.webapp.jsonapi.response
 
-abstract class JsonApiSerializerBase<Input> : Serializer<Input> {
+abstract class JsonApiSerializerBase<Input> {
     /**
      * Results of building the relationship details of a resource
      * @property relationships The relationships of the resource

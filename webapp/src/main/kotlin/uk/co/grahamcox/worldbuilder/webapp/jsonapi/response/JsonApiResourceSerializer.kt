@@ -21,7 +21,7 @@ class JsonApiResourceSerializer<Input>(private val type: String,
      * @param input The input object to serialize
      * @return The JSON API response for the data
      */
-    override fun serialize(input: Input): JsonApiResponse<JsonApiResource> {
+    fun serialize(input: Input): JsonApiResponse<JsonApiResource> {
         val alreadyIncluded = mutableMapOf<String, MutableSet<Any>>()
 
         val relatedResources = buildRelatedResources(input, relatedResources, alreadyIncluded)
