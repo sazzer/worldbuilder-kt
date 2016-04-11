@@ -18,7 +18,7 @@ open class WorldsController(private val resourceSerializer: JsonApiResourceSeria
      * Get a collection of worlds
      * @return the worlds
      */
-    @RequestMapping
+    @RequestMapping(produces = arrayOf("application/vnd.api+json"))
     open fun getWorlds() : JsonApiResponse<List<JsonApiResource>> {
         val worlds = listOf(
                 World(id = "abcde",
@@ -39,7 +39,7 @@ open class WorldsController(private val resourceSerializer: JsonApiResourceSeria
      * @param id The ID of the World
      * @return the world
      */
-    @RequestMapping("/{id}")
+    @RequestMapping(value = "/{id}", produces = arrayOf("application/vnd.api+json"))
     open fun getWorld(@PathVariable("id") id: String) : JsonApiResponse<JsonApiResource> {
         val world = World(id = id,
                 name = "Discworld",
