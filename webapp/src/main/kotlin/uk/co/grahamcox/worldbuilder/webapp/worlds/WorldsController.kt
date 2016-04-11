@@ -4,8 +4,10 @@ import org.springframework.hateoas.mvc.ControllerLinkBuilder
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder
 import uk.co.grahamcox.worldbuilder.webapp.jsonapi.response.*
 import java.time.Clock
+import kotlin.reflect.jvm.javaMethod
 
 /**
  * Controller for interacting with World records
@@ -28,7 +30,11 @@ open class WorldsController() {
         )
 
         /** The Self Link of a World */
-        private val RESOURCE_SELF_LINK_GENERATOR = { world: World -> "/api/worlds/${world.id}" }
+        private val RESOURCE_SELF_LINK_GENERATOR = { world: World ->
+            MvcUriComponentsBuilder.fromMethod(WorldsController::getWorld.javaMethod, world.id)
+                    .build()
+                    .toUriString()
+        }
 
         /** The relationship representing the owner of a world */
         private val OWNER_RELATIONSHIP_SCHEMA = JsonApiRelatedResourceSchema<World, User>(
