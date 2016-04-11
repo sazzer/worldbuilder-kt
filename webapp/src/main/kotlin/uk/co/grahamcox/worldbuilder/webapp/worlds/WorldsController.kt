@@ -12,7 +12,8 @@ import java.time.Clock
  */
 @RestController
 @RequestMapping("/api/worlds")
-open class WorldsController {
+open class WorldsController(private val resourceSerializer: JsonApiResourceSerializer<World>,
+                            private val collectionSerializer: JsonApiCollectionSerializer<List<World>, World>) {
     /**
      * Get a collection of worlds
      * @return the worlds
@@ -30,45 +31,7 @@ open class WorldsController {
                         updated = Clock.systemUTC().instant().plusSeconds(100))
         )
 
-        val serializer = JsonApiCollectionSerializer(
-                type = "world",
-                resourceListGenerator = { worlds: List<World> -> worlds },
-                idGenerator = World::id,
-                attributeGenerator = mapOf(
-                        "name" to World::name,
-                        "created" to World::created,
-                        "updated" to World::updated
-                ),
-                collectionSelfLinkGenerator = { worlds -> "/api/worlds" },
-                resourceSelfLinkGenerator = { world -> "/api/worlds/${world.id}" },
-                relatedResources = mapOf(
-                        "owner" to JsonApiRelatedResourceSchema(
-                                type = "user",
-                                resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
-                                idGenerator = User::id,
-                                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/owner" },
-                                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/owner" },
-                                selfLinkGenerator = { world, user -> "/api/users/${user.id}" },
-                                attributeGenerator = mapOf(
-                                        "name" to User::name
-                                )
-                        ),
-                        "lastEdited" to JsonApiRelatedResourceSchema(
-                                type = "user",
-                                resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
-                                idGenerator = User::id,
-                                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/edited" },
-                                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/edited" },
-                                selfLinkGenerator = { world, user -> "/api/users/${user.id}" },
-                                attributeGenerator = mapOf(
-                                        "name" to User::name
-                                )
-                        )
-
-                )
-        )
-
-        return serializer.serialize(worlds)
+        return collectionSerializer.serialize(worlds)
     }
 
     /**
@@ -83,42 +46,6 @@ open class WorldsController {
                 created = Clock.systemUTC().instant(),
                 updated = Clock.systemUTC().instant().plusSeconds(100))
 
-        val serializer = JsonApiResourceSerializer(
-                type = "world",
-                idGenerator = World::id,
-                attributeGenerator = mapOf(
-                        "name" to World::name,
-                        "created" to World::created,
-                        "updated" to World::updated
-                ),
-                selfLinkGenerator = { world -> "/api/worlds/${world.id}" },
-                relatedResources = mapOf(
-                        "owner" to JsonApiRelatedResourceSchema(
-                                type = "user",
-                                resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
-                                idGenerator = User::id,
-                                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/owner" },
-                                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/owner" },
-                                selfLinkGenerator = { world, user -> "/api/users/${user.id}" },
-                                attributeGenerator = mapOf(
-                                        "name" to User::name
-                                )
-                        ),
-                        "lastEdited" to JsonApiRelatedResourceSchema(
-                                type = "user",
-                                resourceExtractor = { world -> User(id = 12345, name = "Terry Pratchett") },
-                                idGenerator = User::id,
-                                relationshipLinkGenerator = { world, user -> "/api/worlds/${world.id}/relationships/edited" },
-                                relatedLinkGenerator = { world, user -> "/api/worlds/${world.id}/edited" },
-                                selfLinkGenerator = { world, user -> "/api/users/${user.id}" },
-                                attributeGenerator = mapOf(
-                                        "name" to User::name
-                                )
-                        )
-
-                )
-        )
-
-        return serializer.serialize(world)
+        return resourceSerializer.serialize(world)
     }
 }

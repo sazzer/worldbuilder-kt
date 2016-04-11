@@ -13,7 +13,8 @@ import java.time.Clock
  */
 @Configuration
 @Import(
-        WebMvcConfig::class
+        WebMvcConfig::class,
+        WorldsConfig::class
 )
 open class WebappConfig {
     /**
@@ -24,11 +25,4 @@ open class WebappConfig {
     @Autowired
     @Bean
     open fun debugController(clock: Clock) = DebugController(clock)
-
-    /**
-     * Build the Worlds Controller
-     * @return the controller
-     */
-    @Bean
-    open fun worldsController() = WorldsController()
 }
