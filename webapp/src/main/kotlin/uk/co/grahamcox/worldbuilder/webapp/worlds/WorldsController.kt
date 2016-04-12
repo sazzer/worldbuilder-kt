@@ -2,14 +2,13 @@ package uk.co.grahamcox.worldbuilder.webapp.worlds
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder
 import uk.co.grahamcox.worldbuilder.service.ResourceNotFoundException
 import uk.co.grahamcox.worldbuilder.service.users.User
 import uk.co.grahamcox.worldbuilder.service.worlds.World
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldFinder
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldId
 import uk.co.grahamcox.worldbuilder.webapp.jsonapi.response.*
-import kotlin.reflect.jvm.javaMethod
+import uk.co.grahamcox.worldbuilder.webapp.routeTo
 
 /**
  * Controller for interacting with World records
@@ -32,11 +31,7 @@ open class WorldsController(private val worldFinder: WorldFinder) {
         )
 
         /** The Self Link of a World */
-        private val RESOURCE_SELF_LINK_GENERATOR = { world: World ->
-            MvcUriComponentsBuilder.fromMethod(WorldsController::class.java, WorldsController::getWorld.javaMethod, world.id.id)
-                    .build()
-                    .toUriString()
-        }
+        private val RESOURCE_SELF_LINK_GENERATOR = { world: World -> WorldsController::getWorld.routeTo(world.id.id) }
 
         /** The relationship representing the owner of a world */
         private val OWNER_RELATIONSHIP_SCHEMA = JsonApiRelatedResourceSchema<World, User>(
@@ -75,11 +70,7 @@ open class WorldsController(private val worldFinder: WorldFinder) {
             resourceListGenerator = { worlds: List<World> -> worlds },
             idGenerator = RESOURCE_ID_GENERATOR,
             attributeGenerator = RESOURCE_ATTRIBUTES,
-            collectionSelfLinkGenerator = { worlds ->
-                MvcUriComponentsBuilder.fromMethod(WorldsController::class.java, WorldsController::getWorlds.javaMethod)
-                        .build()
-                        .toUriString()
-            },
+            collectionSelfLinkGenerator = { worlds -> WorldsController::getWorlds.routeTo() },
             resourceSelfLinkGenerator = RESOURCE_SELF_LINK_GENERATOR,
             relatedResources = RESOURCE_RELATIONSHIPS
     )
