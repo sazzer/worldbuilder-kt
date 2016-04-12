@@ -43,11 +43,6 @@ open class WorldsController(private val worldFinder: WorldFinder) {
                 type = "user",
                 resourceExtractor = { world -> User(id = world.ownerId, name = "Terry Pratchett") },
                 idGenerator = User::id,
-                relationshipLinkGenerator = { world, user ->
-                    MvcUriComponentsBuilder.fromMethod(WorldsController::class.java, WorldsController::getWorldOwnerRelationship.javaMethod, world.id.id)
-                            .build()
-                            .toUriString()
-                },
                 relatedLinkGenerator = { world, user -> "/api/worlds/${world.id.id}/owner" },
                 selfLinkGenerator = { world, user -> "/api/users/${user.id.id}" },
                 attributeGenerator = mapOf(
@@ -90,21 +85,6 @@ open class WorldsController(private val worldFinder: WorldFinder) {
     )
 
     /**
-     * Serializer to use for the relationship to the owner
-     */
-    private val ownerRelationshipSerializer = JsonApiResourceSerializer(
-            type = "user",
-            idGenerator = World::ownerId,
-            selfLinkGenerator = { world ->
-                MvcUriComponentsBuilder.fromMethod(WorldsController::class.java, WorldsController::getWorldOwnerRelationship.javaMethod, world.id.id)
-                        .build()
-                        .toUriString()
-            },
-            attributeGenerator = mapOf(),
-            relatedResources = mapOf()
-    )
-
-    /**
      * Get a collection of worlds
      * @return the worlds
      */
@@ -126,30 +106,6 @@ open class WorldsController(private val worldFinder: WorldFinder) {
 
         return resourceSerializer.serialize(world)
     }
-
-    /**
-     * Get the details of the relationship between a World and the Owner of the World
-     * @param id The ID of the World
-     * @return the world
-     */
-    @RequestMapping(value = "/{id}/relationships/owner", method = arrayOf(RequestMethod.GET))
-    open fun getWorldOwnerRelationship(@PathVariable("id") id: String) : JsonApiResponse<JsonApiResource> {
-        var world = worldFinder.findWorldById(WorldId(id))
-
-        return ownerRelationshipSerializer.serialize(world)
-    }
-
-    /**
-     * Get the details of the relationship between a World and the Owner of the World
-     * @param id The ID of the World
-     * @return the world
-     */
-    @RequestMapping(value = "/{id}/relationships/owner", method = arrayOf(RequestMethod.PATCH))
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    open fun changeWorldOwnerRelationship(@PathVariable("id") id: String) = mapOf(
-            "status" to HttpStatus.FORBIDDEN.value().toString(),
-            "title" to "The owner of a World cannot be changed"
-    )
 
     /**
      * Handler for when we try to load an unknown resource
