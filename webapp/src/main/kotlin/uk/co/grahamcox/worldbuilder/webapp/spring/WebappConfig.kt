@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.co.grahamcox.worldbuilder.webapp.DebugController
+import uk.co.grahamcox.worldbuilder.webapp.swagger.SwaggerController
 import uk.co.grahamcox.worldbuilder.webapp.worlds.WorldsController
 import java.time.Clock
 
@@ -25,4 +26,11 @@ open class WebappConfig {
     @Autowired
     @Bean
     open fun debugController(clock: Clock) = DebugController(clock)
+
+    /**
+     * Build the Swagger Controller
+     * @return the swagger controller
+     */
+    @Bean
+    open fun swaggerController() = SwaggerController()
 }
