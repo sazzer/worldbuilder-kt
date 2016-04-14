@@ -7,7 +7,11 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.converter.*
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
+import org.springframework.web.servlet.resource.GzipResourceResolver
+import org.springframework.web.servlet.resource.PathResourceResolver
 
 /**
  * Configuration for Spring WebMVC
@@ -37,5 +41,23 @@ open class WebMvcConfig : WebMvcConfigurerAdapter() {
 
         // Then our custom ones
         converters.add(MappingJackson2HttpMessageConverter(objectMapper))
+    }
+
+    /**
+     * Add any resource handlers for raw resources
+     * @param registry The registry to add the handlers to
+     */
+    override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
+        registry.addResourceHandler("/api/docs/swagger-ui/**")
+                .addResourceLocations("classpath:/swagger-ui/")
+                .setCachePeriod(3600)
+                .resourceChain(true)
+                .addResolver(GzipResourceResolver())
+                .addResolver(PathResourceResolver())
+    }
+
+    override fun addViewControllers(registry: ViewControllerRegistry) {
+        registry.addRedirectViewController("/api/docs/swagger-ui", "/api/docs/swagger-ui/index.html")
+        registry.addRedirectViewController("/api/docs/swagger-ui/", "/api/docs/swagger-ui/index.html")
     }
 }
