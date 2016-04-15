@@ -1,9 +1,6 @@
 package uk.co.grahamcox.worldbuilder.webapp
 
-import org.junit.After
-import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
+import io.kotlintest.specs.FreeSpec
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
@@ -43,12 +40,35 @@ class ControllerClass {
 /**
  * Unit tests for the URL Builder helper
  */
-class UrlBuilderTest {
+class UrlBuilderTest : FreeSpec() {
+    init {
+        "When building a URL to a controller method" - {
+            "that has no arguments" with {
+                ControllerClass::handler.routeTo() shouldBe "https://server.host:6789/some/root/leaf"
+            }
+            "That has a single Path parameter" with {
+                ControllerClass::pathHandler.routeTo("hello") shouldBe "https://server.host:6789/some/root/path/hello/leaf"
+            }
+            "That has a single Query parameter" with {
+                ControllerClass::queryHandler.routeTo("hello") shouldBe "https://server.host:6789/some/root/query?q=hello"
+            }
+            "That has both Path and Query parameters" with {
+                ControllerClass::pathQueryHandler.routeTo("hello", "world") shouldBe "https://server.host:6789/some/root/hello?q=world"
+            }
+        }
+        "When building a URL to a non-controller method" - {
+            "should fail" with {
+                expecting(IllegalArgumentException::class) {
+                    ControllerClass::unmapped.routeTo()
+                }
+            }
+        }
+    }
+
     /**
      * Set up the "current" request details
      */
-    @Before
-    fun setup() {
+    override fun beforeAll() {
         val request = MockHttpServletRequest("GET", "/some/other")
         request.scheme = "https"
         request.serverName = "server.host"
@@ -59,49 +79,7 @@ class UrlBuilderTest {
     /**
      * Reset the "current" request details
      */
-    @After
-    fun reset() {
+    override fun afterAll() {
         RequestContextHolder.resetRequestAttributes()
-    }
-
-    /**
-     * Test writing a URL to a controller with no arguments
-     */
-    @Test
-    fun testNoArgs() {
-        Assert.assertEquals("https://server.host:6789/some/root/leaf", ControllerClass::handler.routeTo())
-    }
-
-    /**
-     * Test writing a URL to a controller with a Path argument
-     */
-    @Test
-    fun testPathArgs() {
-        Assert.assertEquals("https://server.host:6789/some/root/path/hello/leaf", ControllerClass::pathHandler.routeTo("hello"))
-    }
-
-    /**
-     * Test writing a URL to a controller with a Query argument
-     */
-    @Test
-    fun testQueryArgs() {
-        Assert.assertEquals("https://server.host:6789/some/root/query?q=hello", ControllerClass::queryHandler.routeTo("hello"))
-    }
-
-    /**
-     * Test writing a URL to a controller with a Path and Query argument
-     */
-    @Test
-    fun testPathAndQueryArgs() {
-        Assert.assertEquals("https://server.host:6789/some/root/hello?q=world",
-                ControllerClass::pathQueryHandler.routeTo("hello", "world"))
-    }
-
-    /**
-     * Test writing a URL to a handler that isn't mapped to a URL
-     */
-    @Test(expected = IllegalArgumentException::class)
-    fun testUnmapped() {
-        ControllerClass::unmapped.routeTo()
     }
 }
