@@ -37,10 +37,11 @@ open class SwaggerController {
                                     tags = arrayOf("world"),
                                     responses = mapOf(),
                                     summary = "Get a single World by ID",
+                                    produces = arrayOf("application/vnd.api+json"),
                                     parameters = arrayOf(
                                             Parameter(
                                                     name = "id",
-                                                    location = "path",
+                                                    location = ParameterLocation.PATH,
                                                     type = DataType.STRING,
                                                     description = "The ID of the World",
                                                     required = true

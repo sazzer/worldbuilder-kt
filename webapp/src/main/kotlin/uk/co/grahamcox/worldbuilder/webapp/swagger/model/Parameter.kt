@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @property type The type fo the parameter
  */
 data class Parameter(val name: String,
-                     @get:JsonProperty("in") val location: String,
+                     @get:JsonProperty("in") val location: ParameterLocation,
                      val description: String? = null,
                      val required: Boolean = true,
                      val type: DataType)
