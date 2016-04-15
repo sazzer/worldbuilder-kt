@@ -4,6 +4,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.Swagger
 import java.time.Clock
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -21,6 +22,7 @@ open class DebugController(private val clock: Clock) {
      */
     @RequestMapping("/now")
     @ResponseBody
+    @Swagger(value = "Return the server time", tags = arrayOf("debug"))
     fun now(@RequestParam(name = "tz", required = false, defaultValue = "UTC") timezone: String) =
             ZonedDateTime.now(clock).withZoneSameInstant(ZoneId.of(timezone))
 }
