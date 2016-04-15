@@ -35,7 +35,10 @@ open class SwaggerController {
                     "/api/worlds/{id}" to Path(
                             get = Operation(
                                     tags = arrayOf("world"),
-                                    responses = mapOf(),
+                                    responses = mapOf(
+                                            "default" to Response("The successful response"),
+                                            "404" to Response("If the World doesn't exist")
+                                    ),
                                     summary = "Get a single World by ID",
                                     produces = arrayOf("application/vnd.api+json"),
                                     parameters = arrayOf(
