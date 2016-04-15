@@ -5,14 +5,12 @@ import org.springframework.beans.factory.config.AbstractFactoryBean
 import org.springframework.context.ApplicationContext
 import org.springframework.context.ApplicationContextAware
 import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerSummary
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerTags
-import uk.co.grahamcox.worldbuilder.webapp.swagger.model.Info
-import uk.co.grahamcox.worldbuilder.webapp.swagger.model.Operation
-import uk.co.grahamcox.worldbuilder.webapp.swagger.model.Path
-import uk.co.grahamcox.worldbuilder.webapp.swagger.model.Schema
+import uk.co.grahamcox.worldbuilder.webapp.swagger.model.*
 import java.lang.reflect.Method
 
 /**
@@ -162,9 +160,32 @@ private fun buildOperation(handlerMethod: Method?) = when(handlerMethod) {
         val handlerSwaggerTags = handlerMethod.getAnnotation(SwaggerTags::class.java)?.value?.toSet() ?: setOf<String>()
         val controllerSwaggerTags = handlerMethod.declaringClass.getAnnotation(SwaggerTags::class.java)?.value?.toSet() ?: setOf<String>()
         val allTags = handlerSwaggerTags + controllerSwaggerTags
+
+        val pathParams = handlerMethod.parameters
+            .filter { param -> param.isAnnotationPresent(PathVariable::class.java) }
+            .map { param ->
+                val pathVariable = param.getAnnotation(PathVariable::class.java)
+                val variableName = if (pathVariable.value.isEmpty()) {
+                    param.name
+                } else {
+                    pathVariable.value
+                }
+
+                val swaggerSummary = param.getAnnotation(SwaggerSummary::class.java)?.value
+
+                Parameter(
+                        name = variableName,
+                        description = swaggerSummary ?: "Undocumented",
+                        location = ParameterLocation.PATH,
+                        type = DataType.STRING,
+                        required = true
+                )
+            }
+
         Operation(
                 tags = allTags.toTypedArray(),
                 summary = swaggerSummary ?: "Undocumented",
+                parameters = pathParams.toTypedArray(),
                 responses = mapOf()
         )
     }

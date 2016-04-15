@@ -97,7 +97,7 @@ open class WorldsController(private val worldFinder: WorldFinder) {
      */
     @RequestMapping(value = "/{id}", method = arrayOf(RequestMethod.GET))
     @SwaggerSummary("Get a single world by ID")
-    open fun getWorld(@PathVariable("id") id: String) : JsonApiResponse<JsonApiResource> {
+    open fun getWorld(@PathVariable("id") @SwaggerSummary("The ID of the World") id: String) : JsonApiResponse<JsonApiResource> {
         val world = worldFinder.findWorldById(WorldId(id))
 
         return resourceSerializer.serialize(world)
