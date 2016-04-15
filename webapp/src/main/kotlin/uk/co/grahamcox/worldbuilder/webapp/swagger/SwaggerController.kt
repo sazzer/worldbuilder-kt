@@ -41,7 +41,7 @@ open class SwaggerController {
                                             Parameter(
                                                     name = "id",
                                                     location = "path",
-                                                    type = "string",
+                                                    type = DataType.STRING,
                                                     description = "The ID of the World",
                                                     required = true
                                             )

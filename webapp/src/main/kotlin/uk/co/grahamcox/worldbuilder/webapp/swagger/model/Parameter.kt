@@ -14,4 +14,4 @@ data class Parameter(val name: String,
                      @get:JsonProperty("in") val location: String,
                      val description: String? = null,
                      val required: Boolean = true,
-                     val type: String)
+                     val type: DataType)
