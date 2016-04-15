@@ -5,7 +5,8 @@ import org.springframework.beans.factory.BeanFactoryAware
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
-import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.Swagger
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerSummary
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerTags
 import uk.co.grahamcox.worldbuilder.webapp.swagger.model.*
 
 /**
@@ -21,7 +22,8 @@ open class SwaggerController : BeanFactoryAware {
     /**
      * Handler to load the schema
      */
-    @Swagger(value = "Generate the Swagger documentation", tags = arrayOf("swagger", "documentation"))
+    @SwaggerSummary("Generate the Swagger documentation")
+    @SwaggerTags(arrayOf("swagger", "documentation"))
     @RequestMapping
     @ResponseBody
     fun getSchema(): Schema {

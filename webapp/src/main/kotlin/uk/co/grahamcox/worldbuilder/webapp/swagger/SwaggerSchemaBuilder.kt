@@ -7,7 +7,8 @@ import org.springframework.context.ApplicationContextAware
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
-import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.Swagger
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerSummary
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerTags
 import uk.co.grahamcox.worldbuilder.webapp.swagger.model.Info
 import uk.co.grahamcox.worldbuilder.webapp.swagger.model.Operation
 import uk.co.grahamcox.worldbuilder.webapp.swagger.model.Path
@@ -157,11 +158,13 @@ private fun buildPath(handlersMap: Map<RequestMethod, Method>) = Path(
 private fun buildOperation(handlerMethod: Method?) = when(handlerMethod) {
     null -> null
     else -> {
-        val handlerSwaggerDetails = handlerMethod.getAnnotation(Swagger::class.java)
-
+        val swaggerSummary = handlerMethod.getAnnotation(SwaggerSummary::class.java)?.value
+        val handlerSwaggerTags = handlerMethod.getAnnotation(SwaggerTags::class.java)?.value?.toSet() ?: setOf<String>()
+        val controllerSwaggerTags = handlerMethod.declaringClass.getAnnotation(SwaggerTags::class.java)?.value?.toSet() ?: setOf<String>()
+        val allTags = handlerSwaggerTags + controllerSwaggerTags
         Operation(
-                tags = handlerSwaggerDetails?.tags,
-                summary = handlerSwaggerDetails?.value ?: "Undocumented",
+                tags = allTags.toTypedArray(),
+                summary = swaggerSummary ?: "Undocumented",
                 responses = mapOf()
         )
     }

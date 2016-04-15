@@ -9,12 +9,15 @@ import uk.co.grahamcox.worldbuilder.service.worlds.WorldFinder
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldId
 import uk.co.grahamcox.worldbuilder.webapp.jsonapi.response.*
 import uk.co.grahamcox.worldbuilder.webapp.routeTo
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerSummary
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerTags
 
 /**
  * Controller for interacting with World records
  */
 @RestController
 @RequestMapping(value = "/api/worlds", produces = arrayOf("application/vnd.api+json"))
+@SwaggerTags(arrayOf("worlds"))
 open class WorldsController(private val worldFinder: WorldFinder) {
     companion object {
         /** The resource type for the worlds resources */
@@ -80,6 +83,7 @@ open class WorldsController(private val worldFinder: WorldFinder) {
      * @return the worlds
      */
     @RequestMapping(method = arrayOf(RequestMethod.GET))
+    @SwaggerSummary("Get the list of all worlds")
     open fun getWorlds() : JsonApiResponse<List<JsonApiResource>> {
         val worlds = worldFinder.findWorlds()
 
@@ -92,6 +96,7 @@ open class WorldsController(private val worldFinder: WorldFinder) {
      * @return the world
      */
     @RequestMapping(value = "/{id}", method = arrayOf(RequestMethod.GET))
+    @SwaggerSummary("Get a single world by ID")
     open fun getWorld(@PathVariable("id") id: String) : JsonApiResponse<JsonApiResource> {
         val world = worldFinder.findWorldById(WorldId(id))
 
