@@ -6,6 +6,7 @@ import uk.co.grahamcox.worldbuilder.service.ResourceNotFoundException
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldFinder
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldId
 import uk.co.grahamcox.worldbuilder.webapp.api.UserBriefModel
+import uk.co.grahamcox.worldbuilder.webapp.api.WorldEmbeddedModel
 import uk.co.grahamcox.worldbuilder.webapp.api.WorldModel
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerSummary
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerTags
@@ -28,12 +29,14 @@ open class WorldsController(private val worldFinder: WorldFinder) {
         val world = worldFinder.findWorldById(WorldId(id))
 
         val result = WorldModel()
-            .withName(world.name)
-            .withCreated(world.created.toString())
-            .withUpdated(world.updated.toString())
-            .withOwner(UserBriefModel()
-                    .withId(world.ownerId.id)
-                    .withName("Terry Pratchett"))
+                .withName(world.name)
+                .withCreated(world.created)
+                .withUpdated(world.updated)
+                .withWorldEmbedded(WorldEmbeddedModel()
+                        .withOwner(UserBriefModel()
+                                .withId(world.ownerId.id)
+                                .withName("Terry Pratchett"))
+                )
 
         return result
     }

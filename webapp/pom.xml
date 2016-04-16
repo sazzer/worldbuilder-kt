@@ -76,6 +76,9 @@
                             <targetPackage>uk.co.grahamcox.worldbuilder.webapp.api</targetPackage>
                             <classNameSuffix>Model</classNameSuffix>
                             <generateBuilders>true</generateBuilders>
+                            <dateTimeType>java.time.Instant</dateTimeType>
+                            <dateType>java.time.LocalDate</dateType>
+                            <timeType>java.time.LocalTime</timeType>
                         </configuration>
                     </execution>
                 </executions>
