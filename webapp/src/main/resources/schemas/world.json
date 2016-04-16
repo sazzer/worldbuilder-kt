@@ -1,0 +1,18 @@
+{
+    "type": "object",
+    "javaName": "WorldModel",
+    "properties": {
+        "name": {
+            "type": "string"
+        },
+        "created": {
+            "type": "string"
+        },
+        "updated": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "name"
+    ]
+}

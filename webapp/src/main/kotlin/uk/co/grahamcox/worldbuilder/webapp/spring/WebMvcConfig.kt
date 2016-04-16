@@ -54,6 +54,12 @@ open class WebMvcConfig : WebMvcConfigurerAdapter() {
                 .resourceChain(true)
                 .addResolver(GzipResourceResolver())
                 .addResolver(PathResourceResolver())
+        registry.addResourceHandler("/api/docs/schemas/**")
+                .addResourceLocations("classpath:/schemas/")
+                .setCachePeriod(3600)
+                .resourceChain(true)
+                .addResolver(GzipResourceResolver())
+                .addResolver(PathResourceResolver())
     }
 
     override fun addViewControllers(registry: ViewControllerRegistry) {

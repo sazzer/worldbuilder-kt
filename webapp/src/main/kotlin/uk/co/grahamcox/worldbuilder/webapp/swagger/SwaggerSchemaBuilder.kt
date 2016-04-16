@@ -186,7 +186,9 @@ private fun buildOperation(handlerMethod: Method?) = when(handlerMethod) {
                 tags = allTags.toTypedArray(),
                 summary = swaggerSummary ?: "Undocumented",
                 parameters = pathParams.toTypedArray(),
-                responses = mapOf()
+                responses = mapOf(
+                        "default" to Response("/api/docs/schemas/world.json")
+                )
         )
     }
 }
