@@ -1,6 +1,5 @@
 {
     "type": "object",
-    "javaName": "WorldModel",
     "properties": {
         "name": {
             "type": "string"
@@ -10,6 +9,9 @@
         },
         "updated": {
             "type": "string"
+        },
+        "owner": {
+            "$ref": "userBrief.json"
         }
     },
     "required": [
