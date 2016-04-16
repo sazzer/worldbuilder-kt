@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.co.grahamcox.worldbuilder.webapp.DebugController
-import uk.co.grahamcox.worldbuilder.webapp.worlds.WorldsController
 import java.time.Clock
 
 /**
@@ -14,7 +13,8 @@ import java.time.Clock
 @Configuration
 @Import(
         WebMvcConfig::class,
-        WorldsConfig::class
+        WorldsConfig::class,
+        SwaggerConfig::class
 )
 open class WebappConfig {
     /**
