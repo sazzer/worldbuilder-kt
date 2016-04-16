@@ -8,6 +8,8 @@ import uk.co.grahamcox.worldbuilder.service.worlds.WorldId
 import uk.co.grahamcox.worldbuilder.webapp.api.UserBriefModel
 import uk.co.grahamcox.worldbuilder.webapp.api.WorldEmbeddedModel
 import uk.co.grahamcox.worldbuilder.webapp.api.WorldModel
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponse
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponses
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerSummary
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerTags
 
@@ -25,6 +27,10 @@ open class WorldsController(private val worldFinder: WorldFinder) {
      */
     @RequestMapping(value = "/{id}", method = arrayOf(RequestMethod.GET))
     @SwaggerSummary("Get a single world by ID")
+    @SwaggerResponses(arrayOf(
+            SwaggerResponse(statusCode = HttpStatus.OK, description = "The details of the World", schema = "world.json"),
+            SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested World wasn't found", schema = "world.json")
+    ))
     open fun getWorld(@PathVariable("id") @SwaggerSummary("The ID of the World") id: String) : WorldModel {
         val world = worldFinder.findWorldById(WorldId(id))
 

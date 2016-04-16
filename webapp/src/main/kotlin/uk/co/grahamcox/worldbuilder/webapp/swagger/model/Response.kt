@@ -5,10 +5,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 
 /**
  * Representation of the response of an operation
- * @property description The location of the schema
+ * @property description The description of the response
+ * @param schemaLocation The location of the schema
  */
-class Response(private val schemaLocation: String) {
-    val description = "The Schema"
+class Response(val description: String,
+               private val schemaLocation: String) {
 
     fun getSchema(): Map<String, Any> {
         val schemaPath = ServletUriComponentsBuilder.fromCurrentRequest()

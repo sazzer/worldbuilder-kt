@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponse
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponses
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerSummary
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerTags
 import uk.co.grahamcox.worldbuilder.webapp.swagger.model.*
@@ -182,13 +184,18 @@ private fun buildOperation(handlerMethod: Method?) = when(handlerMethod) {
                 )
             }
 
+        val responseAnnotations = handlerMethod.getAnnotationsByType(SwaggerResponse::class.java).toList() +
+                (handlerMethod.getAnnotation(SwaggerResponses::class.java)?.value ?: arrayOf())
+        val responses = responseAnnotations.groupBy { response -> response.statusCode }
+                .mapKeys { response -> response.key.value().toString() }
+                .mapValues { response -> response.value.first() }
+                .mapValues { response -> Response(response.value.description, "/api/docs/schemas/${response.value.schema}") }
+
         Operation(
                 tags = allTags.toTypedArray(),
                 summary = swaggerSummary ?: "Undocumented",
                 parameters = pathParams.toTypedArray(),
-                responses = mapOf(
-                        "default" to Response("/api/docs/schemas/world.json")
-                )
+                responses = responses
         )
     }
 }
