@@ -6,6 +6,7 @@ import uk.co.grahamcox.worldbuilder.service.ResourceNotFoundException
 import uk.co.grahamcox.worldbuilder.service.worlds.World
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldFinder
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldId
+import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
 import uk.co.grahamcox.worldbuilder.webapp.api.*
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponse
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponses
@@ -14,11 +15,14 @@ import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerTags
 
 /**
  * Controller for interacting with World records
+ * @property worldFinder The mechanism to find worlds with
+ * @property idGenerator The mechanism to generate IDs with
  */
 @RestController
 @RequestMapping(value = "/api/worlds", produces = arrayOf("application/json"))
 @SwaggerTags(arrayOf("worlds"))
-open class WorldsController(private val worldFinder: WorldFinder) {
+open class WorldsController(private val worldFinder: WorldFinder,
+                            private val idGenerator: IdGenerator) {
     /**
      * Get a single World by ID
      * @param id The ID of the World
@@ -31,7 +35,8 @@ open class WorldsController(private val worldFinder: WorldFinder) {
             SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested World wasn't found", schema = "simpleError.json")
     ))
     open fun getWorld(@PathVariable("id") @SwaggerSummary("The ID of the World") id: String) : WorldModel {
-        val world = worldFinder.findWorldById(WorldId(id))
+        val rawId = idGenerator.parseId(WorldId::class.java.simpleName, id)
+        val world = worldFinder.findWorldById(WorldId(rawId))
 
         val result = translateWorld(world)
 
@@ -60,13 +65,13 @@ open class WorldsController(private val worldFinder: WorldFinder) {
      * @return the translated world
      */
     fun translateWorld(world: World) = WorldModel()
-            .withId(world.id.id)
+            .withId(idGenerator.generateId(world.id.javaClass.simpleName, world.id.id))
             .withName(world.name)
             .withCreated(world.created)
             .withUpdated(world.updated)
             .withWorldEmbedded(WorldEmbeddedModel()
                     .withOwner(UserBriefModel()
-                            .withId(world.ownerId.id)
+                            .withId(idGenerator.generateId(world.ownerId.javaClass.simpleName, world.ownerId.id))
                             .withName("Terry Pratchett"))
             )
 
