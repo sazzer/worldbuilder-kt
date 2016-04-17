@@ -107,7 +107,7 @@ class IdGeneratorTest {
         val json = "{\"id\": \"abcde\", \"namespace\": \"WorldId\"}"
         val encoded = Base64.getMimeEncoder().encodeToString(json.toByteArray())
         Assert.assertNotEquals(WORLD_ID_ENCODED, encoded)
-        
+
         val id = testSubject.parseId("WorldId", encoded)
         Assert.assertEquals(WORLD_ID_BARE, id)
     }

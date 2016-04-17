@@ -7,6 +7,7 @@ import uk.co.grahamcox.worldbuilder.service.worlds.World
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldFinder
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldId
 import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
+import uk.co.grahamcox.worldbuilder.webapp.InvalidIdException
 import uk.co.grahamcox.worldbuilder.webapp.api.*
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponse
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponses
@@ -32,6 +33,7 @@ open class WorldsController(private val worldFinder: WorldFinder,
     @SwaggerSummary("Get a single world by ID")
     @SwaggerResponses(arrayOf(
             SwaggerResponse(statusCode = HttpStatus.OK, description = "The details of the World", schema = "world.json"),
+            SwaggerResponse(statusCode = HttpStatus.BAD_REQUEST, description = "Something about the request was invalid", schema = "simpleError.json"),
             SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested World wasn't found", schema = "simpleError.json")
     ))
     open fun getWorld(@PathVariable("id") @SwaggerSummary("The ID of the World") id: String) : WorldModel {
@@ -82,7 +84,18 @@ open class WorldsController(private val worldFinder: WorldFinder,
     @ExceptionHandler(ResourceNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleResourceNotFoundException(e: ResourceNotFoundException) = SimpleErrorModel()
-        .withStatusCode(HttpStatus.NOT_FOUND.value())
-        .withErrorCode("RESOURCE_NOT_FOUND")
-        .withReason("The World with the given ID was not found")
+            .withStatusCode(HttpStatus.NOT_FOUND.value())
+            .withErrorCode("RESOURCE_NOT_FOUND")
+            .withReason("The World with the given ID was not found")
+
+    /**
+     * Handler for when we fail to parse an ID
+     * @param e The exception to handle
+     */
+    @ExceptionHandler(InvalidIdException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleInvalidIdException(e: InvalidIdException) = SimpleErrorModel()
+            .withStatusCode(HttpStatus.BAD_REQUEST.value())
+            .withErrorCode("INVALID_ID")
+            .withReason("The provided ID was not valid: ${e.id}")
 }
