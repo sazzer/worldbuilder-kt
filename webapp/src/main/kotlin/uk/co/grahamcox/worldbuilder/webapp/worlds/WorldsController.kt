@@ -3,12 +3,10 @@ package uk.co.grahamcox.worldbuilder.webapp.worlds
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import uk.co.grahamcox.worldbuilder.service.ResourceNotFoundException
+import uk.co.grahamcox.worldbuilder.service.worlds.World
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldFinder
 import uk.co.grahamcox.worldbuilder.service.worlds.WorldId
-import uk.co.grahamcox.worldbuilder.webapp.api.SimpleErrorModel
-import uk.co.grahamcox.worldbuilder.webapp.api.UserBriefModel
-import uk.co.grahamcox.worldbuilder.webapp.api.WorldEmbeddedModel
-import uk.co.grahamcox.worldbuilder.webapp.api.WorldModel
+import uk.co.grahamcox.worldbuilder.webapp.api.*
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponse
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponses
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerSummary
@@ -35,18 +33,42 @@ open class WorldsController(private val worldFinder: WorldFinder) {
     open fun getWorld(@PathVariable("id") @SwaggerSummary("The ID of the World") id: String) : WorldModel {
         val world = worldFinder.findWorldById(WorldId(id))
 
-        val result = WorldModel()
-                .withName(world.name)
-                .withCreated(world.created)
-                .withUpdated(world.updated)
-                .withWorldEmbedded(WorldEmbeddedModel()
-                        .withOwner(UserBriefModel()
-                                .withId(world.ownerId.id)
-                                .withName("Terry Pratchett"))
-                )
+        val result = translateWorld(world)
 
         return result
     }
+
+    /**
+     * Perform a search across all of the known worlds
+     * @return the worlds that matched
+     */
+    @RequestMapping
+    @SwaggerSummary("Retrieve a potentially filtered list of all the known worlds")
+    @SwaggerResponse(statusCode = HttpStatus.OK, description = "The details of the matching worlds", schema = "worlds.json")
+    open fun listWorlds() : WorldsModel {
+        val worlds = worldFinder.findWorlds()
+
+        val result = WorldsModel()
+            .withResults(worlds.map { world -> translateWorld(world) })
+
+        return result
+    }
+
+    /**
+     * Translate the given World into a response object
+     * @param world The world to translate
+     * @return the translated world
+     */
+    fun translateWorld(world: World) = WorldModel()
+            .withId(world.id.id)
+            .withName(world.name)
+            .withCreated(world.created)
+            .withUpdated(world.updated)
+            .withWorldEmbedded(WorldEmbeddedModel()
+                    .withOwner(UserBriefModel()
+                            .withId(world.ownerId.id)
+                            .withName("Terry Pratchett"))
+            )
 
     /**
      * Handler for when we try to load an unknown resource
