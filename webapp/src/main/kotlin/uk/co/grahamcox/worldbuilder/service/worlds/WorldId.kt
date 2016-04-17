@@ -1,9 +1,9 @@
 package uk.co.grahamcox.worldbuilder.service.worlds
 
-import com.fasterxml.jackson.annotation.JsonValue
+import uk.co.grahamcox.worldbuilder.service.Id
 
 /**
  * Representation of the ID of a World
  * @property id The actual ID
  */
-data class WorldId(@get:JsonValue val id: String)
+class WorldId(id: String) : Id(id)

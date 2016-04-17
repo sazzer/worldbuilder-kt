@@ -35,8 +35,8 @@ open class WorldsController(private val worldFinder: WorldFinder,
             SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested World wasn't found", schema = "simpleError.json")
     ))
     open fun getWorld(@PathVariable("id") @SwaggerSummary("The ID of the World") id: String) : WorldModel {
-        val rawId = idGenerator.parseId(WorldId::class.java.simpleName, id)
-        val world = worldFinder.findWorldById(WorldId(rawId))
+        val rawId = idGenerator.parseId(id, WorldId::class)
+        val world = worldFinder.findWorldById(rawId)
 
         val result = translateWorld(world)
 
@@ -65,13 +65,13 @@ open class WorldsController(private val worldFinder: WorldFinder,
      * @return the translated world
      */
     fun translateWorld(world: World) = WorldModel()
-            .withId(idGenerator.generateId(world.id.javaClass.simpleName, world.id.id))
+            .withId(idGenerator.generateId(world.id))
             .withName(world.name)
             .withCreated(world.created)
             .withUpdated(world.updated)
             .withWorldEmbedded(WorldEmbeddedModel()
                     .withOwner(UserBriefModel()
-                            .withId(idGenerator.generateId(world.ownerId.javaClass.simpleName, world.ownerId.id))
+                            .withId(idGenerator.generateId(world.ownerId))
                             .withName("Terry Pratchett"))
             )
 

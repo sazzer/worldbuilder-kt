@@ -1,10 +1,11 @@
 package uk.co.grahamcox.worldbuilder.webapp
 
-import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
+import uk.co.grahamcox.worldbuilder.service.Id
 import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Exception to throw if we try to decode an invalid ID
@@ -23,6 +24,9 @@ class IdGenerator(private val objectMapper: ObjectMapper) {
 
     /**
      * Generate an ID that is in the given namespace
+     * @param namespace The namespace to use
+     * @param id The ID to use
+     * @return the namespaced and encoded ID
      */
     fun generateId(namespace: String, id: String) : String {
         val idObject = mapOf(
@@ -36,6 +40,25 @@ class IdGenerator(private val objectMapper: ObjectMapper) {
 
         LOG.debug("Encoded ID {} as {}", idObject, encoded)
         return encoded
+    }
+
+    /**
+     * Generate an ID that represents the given ID object, using the class name as the namespace
+     * @param id The ID to use
+     * @return the namespaced and encoded ID
+     */
+    fun generateId(id: Id) = generateId(id.javaClass.simpleName, id.id)
+
+    /**
+     * Attempt to parse the given ID String and return the raw ID that it represents
+     * This uses the class name of the
+     */
+    fun <T : Id> parseId(id: String, idType: KClass<T>) : T{
+        val namespace = idType.java.simpleName
+        val parsedId = parseId(namespace, id)
+        val builtId = idType.java.getDeclaredConstructor(String::class.java).newInstance(parsedId)
+        LOG.debug("Constructed ID {} of type {} from id {}", builtId, idType, id)
+        return builtId
     }
 
     /**

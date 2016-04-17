@@ -1,5 +1,6 @@
 package uk.co.grahamcox.worldbuilder.service.worlds
 
+import org.slf4j.LoggerFactory
 import uk.co.grahamcox.worldbuilder.service.ResourceNotFoundException
 import uk.co.grahamcox.worldbuilder.service.users.UserId
 import java.time.ZoneId
@@ -9,6 +10,10 @@ import java.time.ZonedDateTime
  * Mechanism to access Worlds
  */
 class WorldFinder {
+    companion object {
+        private val LOG = LoggerFactory.getLogger(WorldFinder::class.java)
+    }
+
     private val worlds = listOf(
             World(
                     id = WorldId("abcde"),
@@ -32,6 +37,7 @@ class WorldFinder {
      * @throw ResourceNotFoundException if the requested resource couldn't be found
      */
     fun findWorldById(id: WorldId) : World {
+        LOG.debug("Looking up World with ID {}", id)
         return worlds.firstOrNull { world -> world.id.equals(id) } ?: throw ResourceNotFoundException("Unknown world")
     }
 
