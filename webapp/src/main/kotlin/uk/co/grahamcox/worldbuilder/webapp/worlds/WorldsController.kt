@@ -9,6 +9,7 @@ import uk.co.grahamcox.worldbuilder.service.worlds.WorldId
 import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
 import uk.co.grahamcox.worldbuilder.webapp.InvalidIdException
 import uk.co.grahamcox.worldbuilder.webapp.api.*
+import uk.co.grahamcox.worldbuilder.webapp.api.utils.PaginationModel
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponse
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponses
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerSummary
@@ -57,6 +58,9 @@ open class WorldsController(private val worldFinder: WorldFinder,
 
         val result = WorldsModel()
             .withResults(worlds.map { world -> translateWorld(world) })
+            .withPagination(PaginationModel()
+                .withOffset(0)
+                .withTotalResults(worlds.size))
 
         return result
     }
