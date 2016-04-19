@@ -65,4 +65,33 @@ open class UsersController(private val idGenerator: IdGenerator) {
                 .withProfile(userDetails)
         return result
     }
+
+    /**
+     * Edit an existing user
+     * @param id The ID of the user to edit
+     * @param userDetails The user details to create
+     * @return the new user details
+     */
+    @RequestMapping(value = "/{id}", method = arrayOf(RequestMethod.PUT))
+    @SwaggerSummary("Edit an existing user")
+    @SwaggerResponses(arrayOf(
+            SwaggerResponse(statusCode = HttpStatus.OK, description = "The details of the User", schema = "users/user.json"),
+            SwaggerResponse(statusCode = HttpStatus.FORBIDDEN, description = "The request was not correctly authenticated", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.UNAUTHORIZED, description = "The authenticated user is not allowed to edit this user record", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.BAD_REQUEST, description = "Something about the request was invalid", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.CONFLICT, description = "The user details are duplicates of existing data", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested User wasn't found", schema = "simpleError.json")
+    ))
+    @SwaggerRequest(description = "The new details of the user", schema = "users/profile.json")
+    open fun editUser(@PathVariable("id") @SwaggerSummary("The ID of the User") id: String,
+                      @RequestBody userDetails: ProfileModel) : UserModel {
+        val result = UserModel()
+                .withId(idGenerator.generateId(UserId("12345")))
+                .withCreated(Clock.systemUTC().instant())
+                .withUpdated(Clock.systemUTC().instant())
+                .withEnabled(true)
+                .withVerified(false)
+                .withProfile(userDetails)
+        return result
+    }
 }
