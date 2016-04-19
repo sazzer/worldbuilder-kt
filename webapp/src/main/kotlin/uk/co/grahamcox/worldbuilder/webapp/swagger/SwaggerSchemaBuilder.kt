@@ -8,10 +8,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestMethod
-import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponse
-import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerResponses
-import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerSummary
-import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.SwaggerTags
+import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.*
 import uk.co.grahamcox.worldbuilder.webapp.swagger.model.*
 import java.lang.reflect.Method
 
@@ -184,6 +181,21 @@ private fun buildOperation(handlerMethod: Method?) = when(handlerMethod) {
                 )
             }
 
+        val bodyParams = if (handlerMethod.isAnnotationPresent(SwaggerRequest::class.java)) {
+            val swaggerRequest = handlerMethod.getAnnotation(SwaggerRequest::class.java)
+            listOf(Parameter(
+                name = "",
+                    description = swaggerRequest.description,
+                    location = ParameterLocation.BODY,
+                    required = true,
+                    schemaLocation = "/api/docs/schemas/${swaggerRequest.schema}"
+            ))
+        } else {
+            listOf()
+        }
+
+        val allParams = pathParams + bodyParams
+
         val responseAnnotations = handlerMethod.getAnnotationsByType(SwaggerResponse::class.java).toList() +
                 (handlerMethod.getAnnotation(SwaggerResponses::class.java)?.value ?: arrayOf())
         val responses = responseAnnotations.groupBy { response -> response.statusCode }
@@ -194,7 +206,7 @@ private fun buildOperation(handlerMethod: Method?) = when(handlerMethod) {
         Operation(
                 tags = allTags.toTypedArray(),
                 summary = swaggerSummary ?: "Undocumented",
-                parameters = pathParams.toTypedArray(),
+                parameters = allParams.toTypedArray(),
                 responses = responses
         )
     }
