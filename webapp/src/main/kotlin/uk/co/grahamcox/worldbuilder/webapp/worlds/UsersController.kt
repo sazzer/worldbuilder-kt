@@ -2,6 +2,8 @@ package uk.co.grahamcox.worldbuilder.webapp.worlds
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import uk.co.grahamcox.worldbuilder.service.users.User
+import uk.co.grahamcox.worldbuilder.service.users.UserFinder
 import uk.co.grahamcox.worldbuilder.service.users.UserId
 import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
 import uk.co.grahamcox.worldbuilder.webapp.api.users.ProfileModel
@@ -17,7 +19,42 @@ import java.time.Clock
 @RestController
 @RequestMapping(value = "/api/users", produces = arrayOf("application/json"))
 @SwaggerTags(arrayOf("users"))
-open class UsersController(private val idGenerator: IdGenerator) {
+open class UsersController(private val userFinder: UserFinder,
+                           private val idGenerator: IdGenerator) {
+
+    /**
+     * Get a list of all of the users
+     * @return the user
+     */
+    @RequestMapping(method = arrayOf(RequestMethod.GET))
+    @SwaggerSummary("Get a list of all of the users")
+    @SwaggerResponses(arrayOf(
+            SwaggerResponse(statusCode = HttpStatus.OK, description = "The details of the User", schema = "users/user.json"),
+            SwaggerResponse(statusCode = HttpStatus.BAD_REQUEST, description = "Something about the request was invalid", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested User wasn't found", schema = "simpleError.json")
+    ))
+    open fun searchUsers() : List<UserModel> {
+        val allUsers = userFinder.getAllUsers()
+        val result = allUsers.map { user -> serviceToApiTranslator(user) }
+
+        return result
+    }
+
+    /**
+     * Helper to translate the given User to the API version
+     * @param user The user to translate
+     * @return the API version of the user
+     */
+    fun serviceToApiTranslator(user: User) = UserModel()
+            .withId(idGenerator.generateId(user.id!!))
+            .withCreated(user.created)
+            .withUpdated(user.updated)
+            .withEnabled(user.enabled)
+            .withVerified(user.verificationCode == null)
+            .withProfile(ProfileModel()
+                    .withName(user.name)
+                    .withEmail(user.email)
+            )
     /**
      * Get a single User by ID
      * @param id The ID of the User
@@ -31,15 +68,9 @@ open class UsersController(private val idGenerator: IdGenerator) {
             SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested User wasn't found", schema = "simpleError.json")
     ))
     open fun getUserById(@PathVariable("id") @SwaggerSummary("The ID of the User") id: String) : UserModel {
-        val result = UserModel()
-            .withId(idGenerator.generateId(UserId("12345")))
-            .withCreated(Clock.systemUTC().instant())
-            .withUpdated(Clock.systemUTC().instant())
-            .withEnabled(true)
-            .withVerified(true)
-            .withProfile(ProfileModel()
-                .withName("Terry Pratchett")
-                .withEmail("not@set.com"))
+        val userId = idGenerator.parseId(id, UserId::class)
+        val user = userFinder.getUserById(userId)
+        val result = serviceToApiTranslator(user)
         return result
     }
 

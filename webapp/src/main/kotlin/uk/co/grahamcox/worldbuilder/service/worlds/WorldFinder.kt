@@ -38,7 +38,7 @@ class WorldFinder {
      */
     fun findWorldById(id: WorldId) : World {
         LOG.debug("Looking up World with ID {}", id)
-        return worlds.firstOrNull { world -> world.id.equals(id) } ?: throw ResourceNotFoundException("Unknown world")
+        return worlds.firstOrNull { world -> world.id.equals(id) } ?: throw ResourceNotFoundException(id)
     }
 
     /**

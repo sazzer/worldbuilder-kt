@@ -3,6 +3,8 @@ package uk.co.grahamcox.worldbuilder.webapp.spring
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.co.grahamcox.worldbuilder.service.users.UserFinder
+import uk.co.grahamcox.worldbuilder.service.users.dao.DummyUserDao
 import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
 import uk.co.grahamcox.worldbuilder.webapp.worlds.UsersController
 
@@ -17,5 +19,5 @@ open class UsersConfig {
      */
     @Autowired
     @Bean
-    open fun usersController(idGenerator: IdGenerator) = UsersController(idGenerator)
+    open fun usersController(idGenerator: IdGenerator) = UsersController(UserFinder(DummyUserDao()), idGenerator)
 }
