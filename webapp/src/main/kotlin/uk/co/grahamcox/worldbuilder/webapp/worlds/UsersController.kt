@@ -6,6 +6,7 @@ import uk.co.grahamcox.worldbuilder.service.users.UserId
 import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
 import uk.co.grahamcox.worldbuilder.webapp.api.users.ProfileModel
 import uk.co.grahamcox.worldbuilder.webapp.api.users.UserModel
+import uk.co.grahamcox.worldbuilder.webapp.api.utils.PatchModel
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.*
 import java.time.Clock
 
@@ -111,5 +112,36 @@ open class UsersController(private val idGenerator: IdGenerator) {
     ))
     @ResponseStatus(HttpStatus.NO_CONTENT)
     open fun deleteUser(@PathVariable("id") @SwaggerSummary("The ID of the User") id: String) {
+    }
+
+    /**
+     * Edit an existing user
+     * @param id The ID of the user to edit
+     * @param patch The patch to apply
+     * @return the new user details
+     */
+    @RequestMapping(value = "/{id}", method = arrayOf(RequestMethod.PATCH))
+    @SwaggerSummary("Edit an existing user")
+    @SwaggerResponses(arrayOf(
+            SwaggerResponse(statusCode = HttpStatus.OK, description = "The details of the User", schema = "users/user.json"),
+            SwaggerResponse(statusCode = HttpStatus.FORBIDDEN, description = "The request was not correctly authenticated", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.UNAUTHORIZED, description = "The authenticated user is not allowed to edit this user record", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.BAD_REQUEST, description = "Something about the request was invalid", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.CONFLICT, description = "The user details are duplicates of existing data", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested User wasn't found", schema = "simpleError.json")
+    ))
+    @SwaggerRequest(description = "The patch to apply to the user", schema = "utils/patch.json")
+    open fun patchUser(@PathVariable("id") @SwaggerSummary("The ID of the User") id: String,
+                       @RequestBody patch: PatchModel) : UserModel {
+        val result = UserModel()
+                .withId(idGenerator.generateId(UserId("12345")))
+                .withCreated(Clock.systemUTC().instant())
+                .withUpdated(Clock.systemUTC().instant())
+                .withEnabled(true)
+                .withVerified(false)
+                .withProfile(ProfileModel()
+                        .withName("Terry Pratchett")
+                        .withEmail("not@set.com"))
+        return result
     }
 }
