@@ -9,12 +9,16 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder
  * @param schemaLocation The location of the schema
  */
 class Response(val description: String,
-               private val schemaLocation: String) {
+               private val schemaLocation: String? = null) {
 
-    fun getSchema(): Map<String, Any> {
-        val schemaPath = ServletUriComponentsBuilder.fromCurrentRequest()
-                .replacePath(schemaLocation).build().toUriString()
-        return mapOf("\$ref" to schemaPath)
+    fun getSchema(): Map<String, Any>? {
+        return if (schemaLocation != null) {
+            val schemaPath = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .replacePath(schemaLocation).build().toUriString()
+            mapOf("\$ref" to schemaPath)
+        } else {
+            null
+        }
     }
 
 }

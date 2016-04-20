@@ -50,11 +50,12 @@ open class UsersController(private val idGenerator: IdGenerator) {
     @RequestMapping(method = arrayOf(RequestMethod.POST))
     @SwaggerSummary("Create a new user")
     @SwaggerResponses(arrayOf(
-            SwaggerResponse(statusCode = HttpStatus.OK, description = "The details of the User", schema = "users/user.json"),
+            SwaggerResponse(statusCode = HttpStatus.CREATED, description = "The details of the User", schema = "users/user.json"),
             SwaggerResponse(statusCode = HttpStatus.BAD_REQUEST, description = "Something about the request was invalid", schema = "simpleError.json"),
             SwaggerResponse(statusCode = HttpStatus.CONFLICT, description = "The user details are duplicates of existing data", schema = "simpleError.json")
     ))
     @SwaggerRequest(description = "The profile details of the user to create", schema = "users/profile.json")
+    @ResponseStatus(HttpStatus.CREATED)
     open fun createUser(@RequestBody userDetails: ProfileModel) : UserModel {
         val result = UserModel()
                 .withId(idGenerator.generateId(UserId("12345")))
@@ -93,5 +94,22 @@ open class UsersController(private val idGenerator: IdGenerator) {
                 .withVerified(false)
                 .withProfile(userDetails)
         return result
+    }
+
+    /**
+     * Delete an existing user
+     * @param id The ID of the user to edit
+     */
+    @RequestMapping(value = "/{id}", method = arrayOf(RequestMethod.DELETE))
+    @SwaggerSummary("Delete an existing user")
+    @SwaggerResponses(arrayOf(
+            SwaggerResponse(statusCode = HttpStatus.NO_CONTENT, description = "The user was deleted"),
+            SwaggerResponse(statusCode = HttpStatus.FORBIDDEN, description = "The request was not correctly authenticated", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.UNAUTHORIZED, description = "The authenticated user is not allowed to edit this user record", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.BAD_REQUEST, description = "Something about the request was invalid", schema = "simpleError.json"),
+            SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested User wasn't found", schema = "simpleError.json")
+    ))
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    open fun deleteUser(@PathVariable("id") @SwaggerSummary("The ID of the User") id: String) {
     }
 }

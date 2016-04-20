@@ -12,4 +12,4 @@ import org.springframework.http.HttpStatus
 @Retention(AnnotationRetention.RUNTIME)
 annotation class SwaggerResponse(val statusCode: HttpStatus,
                                  val description: String,
-                                 val schema: String)
+                                 val schema: String = "")

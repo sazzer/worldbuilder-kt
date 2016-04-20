@@ -201,7 +201,13 @@ private fun buildOperation(handlerMethod: Method?) = when(handlerMethod) {
         val responses = responseAnnotations.groupBy { response -> response.statusCode }
                 .mapKeys { response -> response.key.value().toString() }
                 .mapValues { response -> response.value.first() }
-                .mapValues { response -> Response(response.value.description, "/api/docs/schemas/${response.value.schema}") }
+                .mapValues { response ->
+                    val schemaLocation = when (response.value.schema) {
+                        "" -> null
+                        else -> "/api/docs/schemas/${response.value.schema}"
+                    }
+                    Response(response.value.description, schemaLocation)
+                }
 
         Operation(
                 tags = allTags.toTypedArray(),
