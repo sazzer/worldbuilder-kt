@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "title": "Validation error representation",
+  "type": "object",
+  "properties": {
+    "statusCode": {
+      "description": "The HTTP Status code that generated this error",
+      "$ref": "errorBase.json#/definitions/statusCode"
+    },
+    "errorCode": {
+      "description": "The internal error code",
+      "$ref": "errorBase.json#/definitions/errorCode"
+    },
+    "reason": {
+      "description": "The reason that caused this error",
+      "$ref": "errorBase.json#/definitions/reason"
+    },
+    "validationErrors": {
+      "title": "validation_errors",
+      "description": "The list of validation errors that occurred",
+      "type": "array",
+      "items": {
+        "title": "validation_error",
+        "description": "A single validation error that occurred",
+        "type": "object",
+        "properties": {
+          "field": {
+            "description": "The field in the request that caused the error",
+            "type": "string"
+          },
+          "location": {
+            "description": "The location of the field in the request",
+            "type": "string",
+            "enum": [
+              "path",
+              "querystring",
+              "body"
+            ]
+          },
+          "error": {
+            "description": "The actual error that occurred with this field",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "location",
+          "error"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "statusCode",
+    "errorCode",
+    "reason",
+    "validationErrors"
+  ],
+  "additionalProperties": false
+}

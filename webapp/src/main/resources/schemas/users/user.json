@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "title": "Representation of the details of a user",
+  "type": "object",
+  "properties": {
+    "type": {
+      "description": "The type of resource this is",
+      "type": "string",
+      "default": "user",
+      "pattern": "^user$"
+    },
+    "id": {
+      "description": "The identifier of the user",
+      "type": "string"
+    },
+    "created": {
+      "description": "When the user was created",
+      "type": "string",
+      "format": "date-time"
+    },
+    "profile": {
+      "title": "user_profile",
+      "description": "The profile details of the user",
+      "$ref": "profile.json"
+    },
+    "status": {
+      "title": "account_status",
+      "description": "The account status",
+      "type": "object",
+      "properties": {
+        "banned": {
+          "description": "Whether the user has been banned or not",
+          "type": "boolean"
+        },
+        "verified": {
+          "description": "Whether the user account has been verified or not",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "banned",
+        "verified"
+      ],
+      "additionalProperties": false
+    },
+    "logins": {
+      "title": "account_logins",
+      "description": "Details of the ways that this user can log in to the system",
+      "$ref": "logins.json"
+    }
+  },
+  "required": [
+    "type",
+    "profile"
+  ]
+}

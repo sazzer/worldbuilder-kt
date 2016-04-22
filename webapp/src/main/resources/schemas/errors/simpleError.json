@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "title": "Simple error representation",
+  "type": "object",
+  "properties": {
+    "statusCode": {
+      "description": "The HTTP Status code that generated this error",
+      "$ref": "errorBase.json#/definitions/statusCode"
+    },
+    "errorCode": {
+      "description": "The internal error code",
+      "$ref": "errorBase.json#/definitions/errorCode"
+    },
+    "reason": {
+      "description": "The reason that caused this error",
+      "$ref": "errorBase.json#/definitions/reason"
+    }
+  },
+  "required": [
+    "statusCode",
+    "errorCode",
+    "reason"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "title": "Details of the ways that this user can log in to the system",
+  "type": "array",
+  "items": {
+    "title": "account_login",
+    "description": "Details of a single method that this user can log in to the system",
+    "type": "object",
+    "properties": {
+      "type": {
+        "description": "The log in type that can be used",
+        "type": "string",
+        "enum": [
+          "local",
+          "twitter",
+          "facebook",
+          "google",
+          "reddit"
+        ]
+      },
+      "id": {
+        "description": "The identifier of the user on the authentication system",
+        "type": "string"
+      }
+    },
+    "required": [
+      "type",
+      "id"
+    ],
+    "additionalProperties": false
+  }
+}

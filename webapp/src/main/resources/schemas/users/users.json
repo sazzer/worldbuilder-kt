@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+
+  "title": "Representation of an entire collection of users",
+  "type": "object",
+  "properties": {
+    "results": {
+      "description": "The actual user records",
+      "type": "array",
+      "items": {
+        "$ref": "user.json"
+      }
+    },
+    "pagination": {
+      "description": "The pagination details about the entire resultset, rather than just this page",
+      "$ref": "../utils/pagination.json"
+    }
+  },
+  "required": [
+    "results",
+    "pagination"
+  ],
+  "additionalProperties": false
+}
