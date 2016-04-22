@@ -3,16 +3,24 @@ package uk.co.grahamcox.worldbuilder.webapp
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.Assert
 import org.junit.Test
-import uk.co.grahamcox.worldbuilder.service.worlds.WorldId
+import uk.co.grahamcox.worldbuilder.service.Id
 import java.util.*
+
+/**
+ * ID implementation to use for the tests
+ * @param id The ID
+ */
+class TestId(id: String) : Id(id)
 
 /**
  * Unit tests for the ID Generator
  */
 class IdGeneratorTest {
-    private val WORLD_ID_ENCODED = "eyJuYW1lc3BhY2UiOiJXb3JsZElkIiwiaWQiOiJhYmNkZSJ9"
+    /** The encoded form of the Test ID */
+    private val TEST_ID_ENCODED = "eyJuYW1lc3BhY2UiOiJUZXN0SWQiLCJpZCI6ImFiY2RlIn0="
 
-    private val WORLD_ID_BARE = "abcde"
+    /** The unencoded Test ID */
+    private val TEST_ID_BARE = "abcde"
 
     /** The object mapper to use */
     private val objectMapper = ObjectMapper()
@@ -25,8 +33,8 @@ class IdGeneratorTest {
      */
     @Test
     fun testGenerateIdFromNamespace() {
-        val generatedId = testSubject.generateId("WorldId", WORLD_ID_BARE)
-        Assert.assertEquals(WORLD_ID_ENCODED, generatedId)
+        val generatedId = testSubject.generateId("TestId", TEST_ID_BARE)
+        Assert.assertEquals(TEST_ID_ENCODED, generatedId)
     }
 
     /**
@@ -34,8 +42,8 @@ class IdGeneratorTest {
      */
     @Test
     fun testGenerateIdFromId() {
-        val generatedId = testSubject.generateId(WorldId(WORLD_ID_BARE))
-        Assert.assertEquals(WORLD_ID_ENCODED, generatedId)
+        val generatedId = testSubject.generateId(TestId(TEST_ID_BARE))
+        Assert.assertEquals(TEST_ID_ENCODED, generatedId)
     }
 
     /**
@@ -43,8 +51,8 @@ class IdGeneratorTest {
      */
     @Test
     fun testParseIdFromNamespce() {
-        val parsedId = testSubject.parseId("WorldId", WORLD_ID_ENCODED)
-        Assert.assertEquals(WORLD_ID_BARE, parsedId)
+        val parsedId = testSubject.parseId("TestId", TEST_ID_ENCODED)
+        Assert.assertEquals(TEST_ID_BARE, parsedId)
     }
 
     /**
@@ -52,8 +60,8 @@ class IdGeneratorTest {
      */
     @Test
     fun testParseIdFromClass() {
-        val parsedId = testSubject.parseId(WORLD_ID_ENCODED, WorldId::class)
-        Assert.assertEquals(WorldId(WORLD_ID_BARE), parsedId)
+        val parsedId = testSubject.parseId(TEST_ID_ENCODED, TestId::class)
+        Assert.assertEquals(TestId(TEST_ID_BARE), parsedId)
     }
 
     /**
@@ -61,7 +69,7 @@ class IdGeneratorTest {
      */
     @Test(expected = InvalidIdException::class)
     fun testParseNonBase64() {
-        testSubject.parseId("WorldId", WORLD_ID_BARE)
+        testSubject.parseId("TestId", TEST_ID_BARE)
     }
 
     /**
@@ -69,7 +77,7 @@ class IdGeneratorTest {
      */
     @Test(expected = InvalidIdException::class)
     fun testParseNonJson() {
-        testSubject.parseId("WorldId", Base64.getMimeEncoder().encodeToString(WORLD_ID_BARE.toByteArray()))
+        testSubject.parseId("TestId", Base64.getMimeEncoder().encodeToString(TEST_ID_BARE.toByteArray()))
     }
 
     /**
@@ -78,7 +86,7 @@ class IdGeneratorTest {
     @Test(expected = InvalidIdException::class)
     fun testParseInvalidJson() {
         val json = "{}"
-        testSubject.parseId("WorldId", Base64.getMimeEncoder().encodeToString(json.toByteArray()))
+        testSubject.parseId("TestId", Base64.getMimeEncoder().encodeToString(json.toByteArray()))
     }
 
     /**
@@ -86,8 +94,8 @@ class IdGeneratorTest {
      */
     @Test(expected = InvalidIdException::class)
     fun testParseJsonExtraFields() {
-        val json = "{\"namespace\": \"WorldId\", \"id\": \"abcde\", \"extra\": 1}"
-        testSubject.parseId("WorldId", Base64.getMimeEncoder().encodeToString(json.toByteArray()))
+        val json = "{\"namespace\": \"TestId\", \"id\": \"abcde\", \"extra\": 1}"
+        testSubject.parseId("TestId", Base64.getMimeEncoder().encodeToString(json.toByteArray()))
     }
 
     /**
@@ -95,7 +103,7 @@ class IdGeneratorTest {
      */
     @Test(expected = InvalidIdException::class)
     fun testParseWrongNamespace() {
-        testSubject.parseId("UserId", WORLD_ID_ENCODED)
+        testSubject.parseId("UserId", TEST_ID_ENCODED)
     }
 
 
@@ -104,11 +112,11 @@ class IdGeneratorTest {
      */
     @Test
     fun testParseJsonAlternativeRepresentation() {
-        val json = "{\"id\": \"abcde\", \"namespace\": \"WorldId\"}"
+        val json = "{\"id\": \"abcde\", \"namespace\": \"TestId\"}"
         val encoded = Base64.getMimeEncoder().encodeToString(json.toByteArray())
-        Assert.assertNotEquals(WORLD_ID_ENCODED, encoded)
+        Assert.assertNotEquals(TEST_ID_ENCODED, encoded)
 
-        val id = testSubject.parseId("WorldId", encoded)
-        Assert.assertEquals(WORLD_ID_BARE, id)
+        val id = testSubject.parseId("TestId", encoded)
+        Assert.assertEquals(TEST_ID_BARE, id)
     }
 }
