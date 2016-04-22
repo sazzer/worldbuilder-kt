@@ -2,9 +2,9 @@ package uk.co.grahamcox.worldbuilder.webapp.users
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import uk.co.grahamcox.worldbuilder.webapp.api.users.NewUserModel
-import uk.co.grahamcox.worldbuilder.webapp.api.users.UserModel
+import uk.co.grahamcox.worldbuilder.webapp.api.users.*
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.*
+import java.time.Clock
 
 /**
  * Controller for working with user records
@@ -16,6 +16,7 @@ open class UsersController {
     /**
      * Get a single User by the Unique User ID
      * @param id The ID of the user
+     * @return the user that was found
      */
     @RequestMapping(value = "/{id}", method = arrayOf(RequestMethod.GET))
     @SwaggerSummary("Get a single User by ID")
@@ -26,7 +27,23 @@ open class UsersController {
         SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested user was not found", schema = "errors/simpleError.json"),
         SwaggerResponse(statusCode = HttpStatus.BAD_REQUEST, description = "The request was badly formed", schema = "errors/validationError.json")
     ))
-    fun getUserById(@PathVariable("id") @SwaggerSummary("The ID of the user to retrieve") id: String) {
+    fun getUserById(@PathVariable("id") @SwaggerSummary("The ID of the user to retrieve") id: String): UserModel {
+        val result = UserModel()
+            .withId("abcdef")
+            .withCreated(Clock.systemUTC().instant())
+            .withProfile(ProfileModel()
+                .withName("Graham")
+                .withEmail("graham@grahamcox.co.uk"))
+            .withStatus(StatusModel()
+                .withBanned(false)
+                .withVerified(true))
+            .withLogins(listOf(
+                    LoginModel()
+                        .withType(LoginModel.Type.LOCAL)
+                        .withId("graham@grahamcox.co.uk")
+            ))
+
+        return result
 
     }
 
