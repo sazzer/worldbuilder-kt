@@ -1,0 +1,10 @@
+[
+  {
+    "_id": "abcdef",
+    "created::datetime": "2014-04-25T12:29:00Z",
+    "updated::datetime": "2016-04-25T12:29:00Z",
+    "name": "Graham",
+    "email": "graham@grahamcox.co.uk",
+    "enabled": true
+  }
+]
