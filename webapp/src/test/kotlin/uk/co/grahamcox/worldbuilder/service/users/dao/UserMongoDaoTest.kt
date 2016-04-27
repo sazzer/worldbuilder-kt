@@ -12,6 +12,7 @@ import uk.co.grahamcox.worldbuilder.service.ResourceNotFoundException
 import uk.co.grahamcox.worldbuilder.service.StaleResourceException
 import uk.co.grahamcox.worldbuilder.service.users.User
 import uk.co.grahamcox.worldbuilder.service.users.UserId
+import java.time.Clock
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -37,7 +38,8 @@ class UserMongoDaoTest {
      */
     @Before
     fun setup() {
-        testSubject = UserMongoDao(embeddedMongoDb.mongoDatabase.getCollection(USERS_COLLECTION))
+        testSubject = UserMongoDao(embeddedMongoDb.mongoDatabase.getCollection(USERS_COLLECTION),
+                Clock.systemUTC())
     }
 
     /**
@@ -162,6 +164,8 @@ class UserMongoDaoTest {
         val loaded = testSubject.getById(saved.identity!!.id)
         Assert.assertEquals("New User", loaded.name)
         Assert.assertEquals("new@user.com", loaded.email)
+        Assert.assertEquals(ZonedDateTime.parse("2014-04-25T12:29:00Z").toInstant(), loaded.identity?.created)
+        Assert.assertNotEquals(ZonedDateTime.parse("2016-04-25T12:29:00Z").toInstant(), loaded.identity?.updated)
     }
 
     /**

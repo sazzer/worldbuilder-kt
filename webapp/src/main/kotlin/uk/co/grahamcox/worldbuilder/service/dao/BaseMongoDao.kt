@@ -10,9 +10,14 @@ import uk.co.grahamcox.worldbuilder.service.Id
 import uk.co.grahamcox.worldbuilder.service.Identity
 import uk.co.grahamcox.worldbuilder.service.ResourceNotFoundException
 import uk.co.grahamcox.worldbuilder.service.StaleResourceException
+import java.time.Clock
+import java.time.Instant
 import java.util.*
 
-abstract class BaseMongoDao<ID : Id, MODEL>(protected val collection: MongoCollection<Document>) : BaseDao<ID, MODEL> {
+abstract class BaseMongoDao<ID : Id, MODEL>(
+        protected val collection: MongoCollection<Document>,
+        protected val clock: Clock
+) : BaseDao<ID, MODEL> {
     companion object {
         /** The logger to use */
         private val LOG = LoggerFactory.getLogger(BaseMongoDao::class.java)
@@ -96,6 +101,11 @@ abstract class BaseMongoDao<ID : Id, MODEL>(protected val collection: MongoColle
         val updateDetails = buildUpdateDetails(record)
         val recordId = determineId(record)
         val identity = getIdentity(record)
+
+        updateDetails.putIfAbsent("\$set", mutableMapOf<String, Any>())
+        updateDetails.putIfAbsent("\$setOnInsert", mutableMapOf<String, Any>())
+        (updateDetails["\$set"] as MutableMap<String, Any>).put("updated", Date.from(clock.instant()))
+        (updateDetails["\$setOnInsert"] as MutableMap<String, Any>).put("created", Date.from(clock.instant()))
 
         val matchDetails = BasicDBObject("_id", recordId.id)
         if (identity != null) {

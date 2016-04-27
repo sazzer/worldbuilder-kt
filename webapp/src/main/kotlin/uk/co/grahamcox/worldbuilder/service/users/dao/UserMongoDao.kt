@@ -7,14 +7,16 @@ import uk.co.grahamcox.worldbuilder.service.Identity
 import uk.co.grahamcox.worldbuilder.service.dao.BaseMongoDao
 import uk.co.grahamcox.worldbuilder.service.users.User
 import uk.co.grahamcox.worldbuilder.service.users.UserId
-import java.time.Instant
+import java.time.Clock
 import java.util.*
 
 /**
  * User DAO that works in terms of MongoDB
- * @property collection The collection to get the data from
+ * @param collection The collection to get the data from
+ * @param clock The clock to use
  */
-class UserMongoDao(collection: MongoCollection<Document>) : UserDao, BaseMongoDao<UserId, User>(collection) {
+class UserMongoDao(collection: MongoCollection<Document>, clock: Clock) :
+        UserDao, BaseMongoDao<UserId, User>(collection, clock) {
     /**
      * Load a User object from the given MongoDB Document
      * @param record The record to parse
@@ -46,11 +48,7 @@ class UserMongoDao(collection: MongoCollection<Document>) : UserDao, BaseMongoDa
                             "name" to record.name,
                             "email" to record.email,
                             "enabled" to record.enabled,
-                            "verificationCode" to record.verificationCode,
-                            "updated" to Date.from(Instant.now())
-                    ),
-                    "\$setOnInsert" to mapOf(
-                            "created" to Date.from(Instant.now())
+                            "verificationCode" to record.verificationCode
                     )
             )
     )
