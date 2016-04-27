@@ -2,17 +2,20 @@ package uk.co.grahamcox.worldbuilder.webapp.users
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
+import uk.co.grahamcox.worldbuilder.service.users.UserFinder
+import uk.co.grahamcox.worldbuilder.service.users.UserId
 import uk.co.grahamcox.worldbuilder.webapp.api.users.*
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.*
 import java.time.Clock
 
 /**
  * Controller for working with user records
+ * @property userFinder The user finder to use
  */
 @RestController
 @SwaggerTags(arrayOf("users"))
 @RequestMapping("/api/users")
-open class UsersController {
+open class UsersController(private val userFinder: UserFinder) {
     /**
      * Get a single User by the Unique User ID
      * @param id The ID of the user
@@ -28,19 +31,18 @@ open class UsersController {
         SwaggerResponse(statusCode = HttpStatus.BAD_REQUEST, description = "The request was badly formed", schema = "errors/validationError.json")
     ))
     fun getUserById(@PathVariable("id") @SwaggerSummary("The ID of the user to retrieve") id: String): UserModel {
+        val user = userFinder.getById(UserId(id))
+
         val result = UserModel()
-            .withId("abcdef")
-            .withCreated(Clock.systemUTC().instant())
+            .withId(user.identity?.id?.id)
+            .withCreated(user.identity?.created)
             .withProfile(ProfileModel()
-                .withName("Graham")
-                .withEmail("graham@grahamcox.co.uk"))
+                .withName(user.name)
+                .withEmail(user.email))
             .withStatus(StatusModel()
-                .withBanned(false)
-                .withVerified(true))
+                .withBanned(!user.enabled)
+                .withVerified(user.verificationCode == null))
             .withLogins(listOf(
-                    LoginModel()
-                        .withType(LoginModel.Type.LOCAL)
-                        .withId("graham@grahamcox.co.uk")
             ))
 
         return result

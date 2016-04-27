@@ -1,7 +1,9 @@
 package uk.co.grahamcox.worldbuilder.webapp.spring
 
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.co.grahamcox.worldbuilder.service.users.UserFinder
 import uk.co.grahamcox.worldbuilder.webapp.users.UsersController
 
 /**
@@ -12,6 +14,7 @@ open class UsersConfig {
     /**
      * The Users Controller
      */
+    @Autowired
     @Bean
-    open fun usersController() = UsersController()
+    open fun usersController(userFinder: UserFinder) = UsersController(userFinder)
 }

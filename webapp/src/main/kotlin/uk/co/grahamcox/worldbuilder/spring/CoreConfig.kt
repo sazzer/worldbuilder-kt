@@ -4,14 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.*
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import java.time.Clock
 
 /**
  * Spring configuration for the core functionality
  */
 @Configuration
+@Import(
+    DatabaseConfig::class,
+    UsersConfig::class
+)
+@PropertySources(
+        PropertySource("classpath:/config/database.properties")
+)
 open class CoreConfig {
     /**
      * Get the clock to use
@@ -34,4 +41,8 @@ open class CoreConfig {
         objectMapper.enable(SerializationFeature.INDENT_OUTPUT)
         return objectMapper;
     }
+
+    /** Property Configurer */
+    @Bean
+    open fun propertyConfig() = PropertySourcesPlaceholderConfigurer()
 }
