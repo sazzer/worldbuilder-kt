@@ -116,9 +116,6 @@ private fun flattenHandlerMap(path: String,
     val result = mutableMapOf<RequestMethod, Method>()
 
     handlerMap.forEach { handler ->
-        if (handler.value.size != 1) {
-            throw IllegalArgumentException("Found multiple handler methods for ${handler.key} ${path}")
-        }
         val handlerMethod = handler.value[0]
 
         handler.key.forEach { httpMethod ->
