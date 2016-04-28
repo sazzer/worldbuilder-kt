@@ -1,12 +1,19 @@
 package uk.co.grahamcox.worldbuilder.webapp.users
 
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import uk.co.grahamcox.worldbuilder.service.users.User
 import uk.co.grahamcox.worldbuilder.service.users.UserFinder
 import uk.co.grahamcox.worldbuilder.service.users.UserId
-import uk.co.grahamcox.worldbuilder.webapp.api.users.*
+import uk.co.grahamcox.worldbuilder.webapp.EtagGenerator
+import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
+import uk.co.grahamcox.worldbuilder.webapp.api.users.NewUserModel
+import uk.co.grahamcox.worldbuilder.webapp.api.users.ProfileModel
+import uk.co.grahamcox.worldbuilder.webapp.api.users.StatusModel
+import uk.co.grahamcox.worldbuilder.webapp.api.users.UserModel
 import uk.co.grahamcox.worldbuilder.webapp.swagger.annotations.*
-import java.time.Clock
 
 /**
  * Controller for working with user records
@@ -15,7 +22,8 @@ import java.time.Clock
 @RestController
 @SwaggerTags(arrayOf("users"))
 @RequestMapping("/api/users")
-open class UsersController(private val userFinder: UserFinder) {
+open class UsersController(private val userFinder: UserFinder,
+                           private val idGenerator: IdGenerator) {
     /**
      * Get a single User by the Unique User ID
      * @param id The ID of the user
@@ -30,23 +38,42 @@ open class UsersController(private val userFinder: UserFinder) {
         SwaggerResponse(statusCode = HttpStatus.NOT_FOUND, description = "The requested user was not found", schema = "errors/simpleError.json"),
         SwaggerResponse(statusCode = HttpStatus.BAD_REQUEST, description = "The request was badly formed", schema = "errors/validationError.json")
     ))
-    fun getUserById(@PathVariable("id") @SwaggerSummary("The ID of the user to retrieve") id: String): UserModel {
+    fun getUserById(@PathVariable("id") @SwaggerSummary("The ID of the user to retrieve") id: String): ResponseEntity<UserModel> {
         val user = userFinder.getById(UserId(id))
 
-        val result = UserModel()
-            .withId(user.identity?.id?.id)
+        val result = buildResponseEntity(user)
+
+        return result
+    }
+
+    /**
+     * Build the API representation of an internal User
+     * @param user The User to translate
+     * @return the API translation
+     */
+    fun translateUserToAPI(user: User) = UserModel()
+            .withId(user.identity?.let { idGenerator.generateId(it.id) })
             .withCreated(user.identity?.created)
             .withProfile(ProfileModel()
-                .withName(user.name)
-                .withEmail(user.email))
+                    .withName(user.name)
+                    .withEmail(user.email))
             .withStatus(StatusModel()
-                .withBanned(!user.enabled)
-                .withVerified(user.verificationCode == null))
+                    .withBanned(!user.enabled)
+                    .withVerified(user.verificationCode == null))
             .withLogins(listOf(
             ))
 
-        return result
+    fun buildResponseEntity(user: User) : ResponseEntity<UserModel> {
+        val userModel = translateUserToAPI(user)
 
+        val headers = HttpHeaders()
+        user.identity?.apply {
+            headers.lastModified = updated.toEpochMilli()
+            headers.eTag = EtagGenerator.generateEtag(user.identity)
+        }
+
+        val result = ResponseEntity(userModel, headers, HttpStatus.OK)
+        return result
     }
 
     /**

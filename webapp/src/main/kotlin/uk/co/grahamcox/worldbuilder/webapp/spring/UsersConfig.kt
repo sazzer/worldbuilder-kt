@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.co.grahamcox.worldbuilder.service.users.UserFinder
+import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
 import uk.co.grahamcox.worldbuilder.webapp.users.UsersController
 
 /**
@@ -16,5 +17,5 @@ open class UsersConfig {
      */
     @Autowired
     @Bean
-    open fun usersController(userFinder: UserFinder) = UsersController(userFinder)
+    open fun usersController(userFinder: UserFinder, idGenerator: IdGenerator) = UsersController(userFinder, idGenerator)
 }
