@@ -63,7 +63,7 @@ class EmbeddedMongoRule : TestRule {
                     val networkConfig = Net(Network.getFreeServerPort(),
                             Network.localhostIsIPv6())
                     val config = MongodConfigBuilder()
-                            .version(Version.Main.V3_3)
+                            .version(Version.Main.V3_2)
                             .net(networkConfig)
                             .build()
                     val executable = starter.prepare(config)
