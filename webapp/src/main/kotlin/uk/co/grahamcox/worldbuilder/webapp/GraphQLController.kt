@@ -62,9 +62,9 @@ open class GraphQLController {
         val result = GraphQL(schema).execute(query.query)
         LOG.debug("Processing query: {} with data {} and errors {}", query, result.data, result.errors)
         return if (result.errors.isNotEmpty()) {
-            result.errors
+            mapOf("errors" to result.errors)
         } else {
-            result.data
+            mapOf("data" to result.data)
         }
     }
 }
@@ -72,4 +72,8 @@ open class GraphQLController {
 class GraphQLJsonInput {
     var query: String = ""
     var variables: Any? = null
+    var operationName: String? = null
+    override fun toString(): String{
+        return "GraphQLJsonInput(query='$query', variables=$variables, operationName=$operationName)"
+    }
 }

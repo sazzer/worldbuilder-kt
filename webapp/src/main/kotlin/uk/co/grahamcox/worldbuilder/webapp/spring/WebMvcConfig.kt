@@ -54,6 +54,12 @@ open class WebMvcConfig : WebMvcConfigurerAdapter() {
                 .resourceChain(true)
                 .addResolver(GzipResourceResolver())
                 .addResolver(PathResourceResolver())
+        registry.addResourceHandler("/api/docs/graphiql/**")
+                .addResourceLocations("classpath:/graphiql/")
+                .setCachePeriod(3600)
+                .resourceChain(true)
+                .addResolver(GzipResourceResolver())
+                .addResolver(PathResourceResolver())
         registry.addResourceHandler("/api/docs/schemas/**")
                 .addResourceLocations("classpath:/schemas/")
                 .setCachePeriod(3600)
@@ -65,5 +71,7 @@ open class WebMvcConfig : WebMvcConfigurerAdapter() {
     override fun addViewControllers(registry: ViewControllerRegistry) {
         registry.addRedirectViewController("/api/docs/swagger-ui", "/api/docs/swagger-ui/index.html")
         registry.addRedirectViewController("/api/docs/swagger-ui/", "/api/docs/swagger-ui/index.html")
+        registry.addRedirectViewController("/api/docs/graphiql", "/api/docs/graphiql/index.html")
+        registry.addRedirectViewController("/api/docs/graphiql/", "/api/docs/graphiql/index.html")
     }
 }
