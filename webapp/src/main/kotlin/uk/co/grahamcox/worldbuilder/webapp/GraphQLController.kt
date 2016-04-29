@@ -2,10 +2,9 @@ package uk.co.grahamcox.worldbuilder.webapp
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import graphql.GraphQL
+import graphql.Scalars.GraphQLBoolean
 import graphql.Scalars.GraphQLString
-import graphql.schema.GraphQLFieldDefinition
-import graphql.schema.GraphQLObjectType
-import graphql.schema.GraphQLSchema
+import graphql.schema.*
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -22,13 +21,120 @@ open class GraphQLController {
     private val schema: GraphQLSchema
 
     init {
+        val worldType = GraphQLObjectType.newObject()
+                .name("world")
+                .description("The details of a single world")
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("id")
+                        .description("The ID of the User")
+                        .type(GraphQLNonNull(GraphQLString))
+                        .build())
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("name")
+                        .description("The name of the User")
+                        .type(GraphQLNonNull(GraphQLString))
+                        .build())
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("owner")
+                        .description("The owner of this World")
+                        .type(GraphQLNonNull(GraphQLTypeReference("user")))
+                        .build())
+                .build()
+
+        val userLoginType = GraphQLObjectType.newObject()
+                .name("login")
+                .description("The details of a single login")
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("provider")
+                        .description("The login provider")
+                        .type(GraphQLNonNull(GraphQLString))
+                        .build())
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("providerId")
+                        .description("The ID as understood by the provider")
+                        .type(GraphQLNonNull(GraphQLString))
+                        .build())
+                .build()
+
+        val userType = GraphQLObjectType.newObject()
+                .name("user")
+                .description("A single user in the system")
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("id")
+                        .description("The ID of the User")
+                        .type(GraphQLNonNull(GraphQLString))
+                        .build())
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("name")
+                        .description("The name of the User")
+                        .type(GraphQLNonNull(GraphQLString))
+                        .build())
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("email")
+                        .description("The Email Address of the User")
+                        .type(GraphQLString)
+                        .build())
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("banned")
+                        .description("If the user is banned")
+                        .type(GraphQLNonNull(GraphQLBoolean))
+                        .build())
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("verified")
+                        .description("If the user is Verified")
+                        .type(GraphQLNonNull(GraphQLBoolean))
+                        .build())
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("logins")
+                        .description("The login provider details")
+                        .type(GraphQLList(userLoginType))
+                        .build())
+                .field(GraphQLFieldDefinition.newFieldDefinition()
+                        .name("worlds")
+                        .description("The Worlds owned by this user")
+                        .type(GraphQLList(worldType))
+                        .dataFetcher { e -> listOf(
+                                mapOf(
+                                        "id" to "123456",
+                                        "name" to "Example",
+                                        "owner" to mapOf(
+                                                "id" to "abcdef",
+                                                "name" to "Graham",
+                                                "email" to "graham@grahamcox.co.uk",
+                                                "banned" to false,
+                                                "verified" to true
+                                        )
+                                )
+                        ) }
+                        .build())
+                .build()
+
         val queryType = GraphQLObjectType.newObject()
-            .name("helloWorldQuery")
+            .name("worldbuilderQuery")
             .field(GraphQLFieldDefinition.newFieldDefinition()
-                .type(GraphQLString)
-                .name("hello")
-                .staticValue("world")
-                .build())
+                    .type(GraphQLNonNull(GraphQLList(userType)))
+                    .name("users")
+                    .description("Filtered list of users")
+                    .staticValue(listOf(
+                            mapOf(
+                                    "id" to "abcdef",
+                                    "name" to "Graham",
+                                    "email" to "graham@grahamcox.co.uk",
+                                    "banned" to false,
+                                    "verified" to true,
+                                    "logins" to listOf(
+                                            mapOf(
+                                                    "provider" to "local",
+                                                    "providerId" to "graham@grahamcox.co.uk"
+                                            ),
+                                            mapOf(
+                                                    "provider" to "twitter",
+                                                    "providerId" to "@grahamcox82"
+                                            )
+                                    )
+                            )
+                    ))
+                    .build())
             .build()
 
         schema = GraphQLSchema.newSchema()
