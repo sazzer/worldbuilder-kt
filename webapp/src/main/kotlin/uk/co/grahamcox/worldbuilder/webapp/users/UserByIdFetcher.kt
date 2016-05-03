@@ -30,8 +30,8 @@ class UserByIdFetcher(private val userFinder: UserFinder) : DataFetcher {
                 val user = userFinder.getById(UserId(userId))
                 val userIdentity = user.identity!!
                 val result = UserModel(id = userIdentity.id.id,
-                        created = userIdentity.created.toString(),
-                        updated = userIdentity.updated.toString(),
+                        created = userIdentity.created,
+                        updated = userIdentity.updated,
                         name = user.name,
                         email = user.email,
                         enabled = user.enabled,

@@ -1,5 +1,7 @@
 package uk.co.grahamcox.worldbuilder.webapp.users
 
+import java.time.Instant
+
 /**
  * Representation of a User
  * @property id The ID of the user
@@ -11,8 +13,8 @@ package uk.co.grahamcox.worldbuilder.webapp.users
  * @property verified If the user account is verified
  */
 data class UserModel(val id: String,
-                     val created: String,
-                     val updated: String,
+                     val created: Instant,
+                     val updated: Instant,
                      val name: String,
                      val email: String?,
                      @get:JvmName("isEnabled") val enabled: Boolean,
