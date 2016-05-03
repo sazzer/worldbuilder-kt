@@ -15,7 +15,9 @@ import java.time.Clock
  */
 @Configuration
 @Import(
-        WebMvcConfig::class
+        WebMvcConfig::class,
+        UsersConfig::class,
+        GraphQLConfig::class
 )
 open class WebappConfig {
     /**
@@ -26,13 +28,6 @@ open class WebappConfig {
     @Autowired
     @Bean
     open fun debugController(clock: Clock) = DebugController(clock)
-
-    /**
-     * Build the GraphQL Controller
-     * @return the GraphQL controller
-     */
-    @Bean
-    open fun graphqlController() = GraphQLController()
 
     /**
      * The ID Generator to use
