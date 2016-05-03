@@ -1,10 +1,8 @@
 package uk.co.grahamcox.worldbuilder.webapp
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import graphql.GraphQL
-import graphql.Scalars.GraphQLBoolean
-import graphql.Scalars.GraphQLString
-import graphql.schema.*
+import graphql.schema.DataFetcher
+import graphql.schema.GraphQLSchema
 import org.slf4j.LoggerFactory
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping

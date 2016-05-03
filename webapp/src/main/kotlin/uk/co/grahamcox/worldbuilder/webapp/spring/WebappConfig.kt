@@ -15,9 +15,7 @@ import java.time.Clock
  */
 @Configuration
 @Import(
-        WebMvcConfig::class,
-        UsersConfig::class,
-        SwaggerConfig::class
+        WebMvcConfig::class
 )
 open class WebappConfig {
     /**
