@@ -41,14 +41,15 @@ open class GraphQLController(private val schema: GraphQLSchema,
             consumes = arrayOf("application/json"),
             produces = arrayOf("application/json"))
     open fun graphqlAsJson(@RequestBody query: GraphQLJsonInput): Any {
-        val variables: Map<String, Any?> = if (query.variables == null) {
-            mapOf<String, Any?>()
-        } else {
-            objectMapper.readValue(query.variables, Map::class.java) as Map<String, Any?>
+        LOG.debug("Processing query: {}", query)
+
+        val variables = when(query.variables.orEmpty()) {
+            "" -> mapOf<String, Any?>()
+            else -> objectMapper.readValue(query.variables, Map::class.java) as Map<String, Any?>
         }
 
         val result = GraphQL(schema).execute(query.query, query.operationName, null, variables)
-        LOG.debug("Processing query: {} with data {} and errors {}", query, result.data, result.errors)
+        LOG.debug("Processed query {} produced data {} and errors {}", query, result.data, result.errors)
         return mapOf(
                 "errors" to result.errors,
                 "data" to result.data
