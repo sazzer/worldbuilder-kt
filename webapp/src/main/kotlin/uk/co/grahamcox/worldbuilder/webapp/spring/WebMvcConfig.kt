@@ -48,14 +48,8 @@ open class WebMvcConfig : WebMvcConfigurerAdapter() {
      * @param registry The registry to add the handlers to
      */
     override fun addResourceHandlers(registry: ResourceHandlerRegistry) {
-        registry.addResourceHandler("/api/docs/swagger-ui/**")
-                .addResourceLocations("classpath:/swagger-ui/")
-                .setCachePeriod(3600)
-                .resourceChain(true)
-                .addResolver(GzipResourceResolver())
-                .addResolver(PathResourceResolver())
-        registry.addResourceHandler("/api/docs/schemas/**")
-                .addResourceLocations("classpath:/schemas/")
+        registry.addResourceHandler("/api/docs/graphiql/**")
+                .addResourceLocations("classpath:/graphiql/")
                 .setCachePeriod(3600)
                 .resourceChain(true)
                 .addResolver(GzipResourceResolver())
@@ -63,7 +57,7 @@ open class WebMvcConfig : WebMvcConfigurerAdapter() {
     }
 
     override fun addViewControllers(registry: ViewControllerRegistry) {
-        registry.addRedirectViewController("/api/docs/swagger-ui", "/api/docs/swagger-ui/index.html")
-        registry.addRedirectViewController("/api/docs/swagger-ui/", "/api/docs/swagger-ui/index.html")
+        registry.addRedirectViewController("/api/docs/graphiql", "/api/docs/graphiql/index.html")
+        registry.addRedirectViewController("/api/docs/graphiql/", "/api/docs/graphiql/index.html")
     }
 }

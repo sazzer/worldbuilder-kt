@@ -36,6 +36,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>com.graphql-java</groupId>
+            <artifactId>graphql-java</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
             <scope>compile</scope>
@@ -80,27 +85,6 @@
                         </systemProperty>
                     </systemProperties>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jsonschema2pojo</groupId>
-                <artifactId>jsonschema2pojo-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirectory>${basedir}/src/main/resources/schemas</sourceDirectory>
-                            <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
-                            <targetPackage>uk.co.grahamcox.worldbuilder.webapp.api</targetPackage>
-                            <classNameSuffix>Model</classNameSuffix>
-                            <generateBuilders>true</generateBuilders>
-                            <dateTimeType>java.time.Instant</dateTimeType>
-                            <dateType>java.time.LocalDate</dateType>
-                            <timeType>java.time.LocalTime</timeType>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

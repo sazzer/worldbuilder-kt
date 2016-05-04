@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.co.grahamcox.worldbuilder.webapp.DebugController
+import uk.co.grahamcox.worldbuilder.webapp.GraphQLController
 import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
 import java.time.Clock
 
@@ -16,7 +17,7 @@ import java.time.Clock
 @Import(
         WebMvcConfig::class,
         UsersConfig::class,
-        SwaggerConfig::class
+        GraphQLConfig::class
 )
 open class WebappConfig {
     /**
