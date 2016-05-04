@@ -28,14 +28,7 @@ class UserByIdFetcher(private val userFinder: UserFinder) : DataFetcher {
             LOG.debug("Loading user with ID: {}", userId)
             return try {
                 val user = userFinder.getById(UserId(userId))
-                val userIdentity = user.identity!!
-                val result = UserModel(id = userIdentity.id.id,
-                        created = userIdentity.created,
-                        updated = userIdentity.updated,
-                        name = user.name,
-                        email = user.email,
-                        enabled = user.enabled,
-                        verified = (user.verificationCode == null))
+                val result = UserTranslator.translate(user)
                 LOG.debug("Loaded user: {}", result)
                 result
             } catch (e: ResourceNotFoundException) {

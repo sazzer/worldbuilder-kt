@@ -1,15 +1,14 @@
 package uk.co.grahamcox.worldbuilder.webapp.spring
 
-import graphql.schema.DataFetcher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.co.grahamcox.worldbuilder.service.users.UserEditor
 import uk.co.grahamcox.worldbuilder.service.users.UserFinder
 import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistrar
 import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistration
 import uk.co.grahamcox.worldbuilder.webapp.users.UserByIdFetcher
-import uk.co.grahamcox.worldbuilder.webapp.users.UserModel
-import java.time.Instant
+import uk.co.grahamcox.worldbuilder.webapp.users.UserCreator
 
 /**
  * Spring Configuration for the API layer to work with Users records
@@ -24,11 +23,19 @@ open class UsersConfig {
     open fun userByIdFetcher(userFinder : UserFinder) = UserByIdFetcher(userFinder)
 
     /**
+     * The Data Fetcher for creating users
+     */
+    @Autowired
+    @Bean
+    open fun userCreator(userEditor: UserEditor) = UserCreator(userEditor)
+
+    /**
      * Configure the User parts of the Schema
      */
     @Autowired
     @Bean
-    open fun userSchema(userByIdFetcher: UserByIdFetcher) = object : GraphQLRegistration {
+    open fun userSchema(userByIdFetcher: UserByIdFetcher,
+                        userCreator: UserCreator) = object : GraphQLRegistration {
         override fun register(registrar: GraphQLRegistrar) {
             registrar.newObject("user")
                     .withDescription("Representation of a User")
@@ -78,19 +85,7 @@ open class UsersConfig {
             registrar.newMutation("createUser")
                     .withDescription("Register a new User")
                     .withType("user")
-                    .withFetcher(DataFetcher { e ->
-                        val input = e.arguments["user"] as Map<String, Any?>
-
-                        UserModel(
-                                id = "newUser",
-                                created = Instant.now(),
-                                updated = Instant.now(),
-                                name = input["name"] as String,
-                                email = input["email"] as String?,
-                                enabled = true,
-                                verified = false
-                        )
-                    })
+                    .withFetcher(userCreator)
                     .withArgument("user")
                             .withDescription("The details of the user to create")
                             .withType("newUserInput")
