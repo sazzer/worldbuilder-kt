@@ -12,6 +12,8 @@ class GraphQLRegistrar {
     }
     /** The object builders we've got so far */
     val objectBuilders = mutableMapOf<String, GraphQLObjectBuilder>()
+    /** The object builders we've got so far */
+    val inputObjectBuilders = mutableMapOf<String, GraphQLInputObjectBuilder>()
     /** The interface builders we've got so far */
     val interfaceBuilders = mutableMapOf<String, GraphQLObjectBuilder>()
     /** The enum builders we've got so far */
@@ -27,6 +29,7 @@ class GraphQLRegistrar {
      */
     private fun checkNameUnused(name: String) {
         listOf("object" to objectBuilders,
+                "input object" to inputObjectBuilders,
                 "interface" to interfaceBuilders,
                 "enum" to enumBuilders).forEach {
             if (it.second.containsKey(name)) {
@@ -34,6 +37,7 @@ class GraphQLRegistrar {
             }
         }
     }
+
     /**
      * Start creating a new Object
      * @param name The name of the new Object
@@ -44,6 +48,19 @@ class GraphQLRegistrar {
         LOG.debug("Adding a new object: {}", name)
         return objectBuilders.getOrPut(name) {
             GraphQLObjectBuilder()
+        }
+    }
+
+    /**
+     * Start creating a new Input Object
+     * @param name The name of the new Input Object
+     * @return the builder to use for the input object
+     */
+    fun newInputObject(name: String) : GraphQLInputObjectBuilder {
+        checkNameUnused(name)
+        LOG.debug("Adding a new input object: {}", name)
+        return inputObjectBuilders.getOrPut(name) {
+            GraphQLInputObjectBuilder()
         }
     }
 
@@ -99,13 +116,14 @@ class GraphQLRegistrar {
 
     /**
      * Get the builder for the type with the given name.
-     * This will return one of the Object, Enum or Interface builders depending on what the name is registered as.
-     * It might also return null if the name isn't registered
+     * This will return one of the Object, Input Object, Enum or Interface builders depending on what the
+     * name is registered as. It might also return null if the name isn't registered
      * @param name The name to get
      * @return the builder for this name, if there is one
      */
     fun getTypeBuilder(name: String) : GraphQLBuilderBase<*>? {
         return objectBuilders[name]
+            ?: inputObjectBuilders[name]
             ?: enumBuilders[name]
             ?: interfaceBuilders[name]
     }

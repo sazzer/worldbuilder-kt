@@ -1,5 +1,6 @@
 package uk.co.grahamcox.worldbuilder.webapp.spring
 
+import graphql.schema.DataFetcher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -7,6 +8,8 @@ import uk.co.grahamcox.worldbuilder.service.users.UserFinder
 import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistrar
 import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistration
 import uk.co.grahamcox.worldbuilder.webapp.users.UserByIdFetcher
+import uk.co.grahamcox.worldbuilder.webapp.users.UserModel
+import java.time.Instant
 
 /**
  * Spring Configuration for the API layer to work with Users records
@@ -61,18 +64,36 @@ open class UsersConfig {
                             .withDescription("The ID of the User to look up")
                             .withType("id!")
 
-            registrar.newMutation("createUser")
-                    .withDescription("Register a new User")
-                    .withType("string")
-                    .withValue("Hello")
+            registrar.newInputObject("newUserInput")
+                    .withDescription("The details of the new user to create")
                     .apply {
-                        withArgument("name")
-                                .withDescription("The name of the user")
+                        withField("name")
+                                .withDescription("The name of the User")
                                 .withType("string!")
-                        withArgument("email")
-                                .withDescription("The email address of the user")
+                        withField("email")
+                                .withDescription("The email address of the User")
                                 .withType("string")
                     }
+
+            registrar.newMutation("createUser")
+                    .withDescription("Register a new User")
+                    .withType("user")
+                    .withFetcher(DataFetcher { e ->
+                        val input = e.arguments["user"] as Map<String, Any?>
+
+                        UserModel(
+                                id = "newUser",
+                                created = Instant.now(),
+                                updated = Instant.now(),
+                                name = input["name"] as String,
+                                email = input["email"] as String?,
+                                enabled = true,
+                                verified = false
+                        )
+                    })
+                    .withArgument("user")
+                            .withDescription("The details of the user to create")
+                            .withType("newUserInput")
         }
     }
 }

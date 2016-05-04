@@ -13,6 +13,7 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
         /** The logger to use */
         private val LOG = LoggerFactory.getLogger(GraphQLSchemaBuilder::class.java)
 
+        /** Map of the type names that represent static types */
         val STATIC_TYPE_NAMES = mapOf(
                 "string" to Scalars.GraphQLString,
                 "integer" to Scalars.GraphQLInt,
@@ -81,6 +82,24 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
     }
 
     /**
+     * Build a new Input Field definition
+     * @param name The name of the input field
+     * @param builder The input field builder to use
+     */
+    private fun build(name: String,
+                      builder: GraphQLInputFieldBuilder) : GraphQLInputObjectField {
+        LOG.debug("Building GraphQL Input Field for name {}", name)
+        val fieldBuilder = GraphQLInputObjectField.newInputObjectField()
+                .name(name)
+                .description(builder.description)
+                .defaultValue(builder.defaultValue)
+                .type(builder.type?.let { buildInputType(it) })
+
+        LOG.debug("Built GraphQL Input Field for name {}", name)
+        return fieldBuilder.build()
+    }
+
+    /**
      * Build a new Argument definition
      * @param name The name of the argument
      * @param builder The argument builder to use
@@ -117,9 +136,9 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
     }
 
     /**
-     * Build a new Field definition
-     * @param name The name of the field
-     * @param builder The field builder to use
+     * Build a new Object definition
+     * @param name The name of the object
+     * @param builder The object builder to use
      */
     private fun build(name: String,
                       builder: GraphQLObjectBuilder) : GraphQLObjectType {
@@ -133,6 +152,26 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
         }
 
         LOG.debug("Built GraphQL Object for name {}", name)
+        return objectBuilder.build()
+    }
+
+    /**
+     * Build a new Input Object definition
+     * @param name The name of the Input Object
+     * @param builder The Input Object builder to use
+     */
+    private fun build(name: String,
+                      builder: GraphQLInputObjectBuilder) : GraphQLInputObjectType {
+        LOG.debug("Building GraphQL Input Object for name {}", name)
+        val objectBuilder = GraphQLInputObjectType.newInputObject()
+                .name(name)
+                .description(builder.description)
+
+        builder.fields.forEach {
+            objectBuilder.field(build(it.key, it.value))
+        }
+
+        LOG.debug("Built GraphQL Input Object for name {}", name)
         return objectBuilder.build()
     }
 
@@ -207,6 +246,10 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
                             build(type.typename, builder)
                         }
                         is GraphQLObjectBuilder -> {
+                            builtNames.add(type.typename)
+                            build(type.typename, builder)
+                        }
+                        is GraphQLInputObjectBuilder -> {
                             builtNames.add(type.typename)
                             build(type.typename, builder)
                         }
