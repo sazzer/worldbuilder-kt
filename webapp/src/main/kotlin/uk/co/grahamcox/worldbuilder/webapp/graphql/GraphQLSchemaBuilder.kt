@@ -40,9 +40,21 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
             queryType.field(build(e.key, e.value))
         }
 
-        return GraphQLSchema.newSchema()
+        val schema = GraphQLSchema.newSchema()
                 .query(queryType.build())
-                .build()
+
+        if (registry.mutationBuilders.isNotEmpty()) {
+            val mutationType = GraphQLObjectType.newObject()
+                    .name("RootMutation")
+
+            registry.mutationBuilders.forEach { e ->
+                mutationType.field(build(e.key, e.value))
+            }
+
+            schema.mutation(mutationType.build())
+        }
+
+        return schema.build()
     }
 
     /**

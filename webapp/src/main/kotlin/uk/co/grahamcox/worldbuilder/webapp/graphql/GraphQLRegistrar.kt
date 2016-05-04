@@ -18,6 +18,8 @@ class GraphQLRegistrar {
     val enumBuilders = mutableMapOf<String, GraphQLEnumBuilder>()
     /** The query builders we've got so far */
     val queryBuilders = mutableMapOf<String, GraphQLFieldBuilder>()
+    /** The mutation builders we've got so far */
+    val mutationBuilders = mutableMapOf<String, GraphQLFieldBuilder>()
 
     /**
      * Check that the given name is not yet used by anything
@@ -79,6 +81,18 @@ class GraphQLRegistrar {
     fun newQuery(name: String) : GraphQLFieldBuilder {
         LOG.debug("Adding a new query: {}", name)
         return queryBuilders.getOrPut(name) {
+            GraphQLFieldBuilder()
+        }
+    }
+
+    /**
+     * Start creating a new Mutation
+     * @param name The name of the new Mutation
+     * @return the builder to use for the Mutation
+     */
+    fun newMutation(name: String) : GraphQLFieldBuilder {
+        LOG.debug("Adding a new mutation: {}", name)
+        return mutationBuilders.getOrPut(name) {
             GraphQLFieldBuilder()
         }
     }

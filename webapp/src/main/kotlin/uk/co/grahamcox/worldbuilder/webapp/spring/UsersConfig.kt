@@ -60,6 +60,19 @@ open class UsersConfig {
                     .withArgument("userId")
                             .withDescription("The ID of the User to look up")
                             .withType("id!")
+
+            registrar.newMutation("createUser")
+                    .withDescription("Register a new User")
+                    .withType("string")
+                    .withValue("Hello")
+                    .apply {
+                        withArgument("name")
+                                .withDescription("The name of the user")
+                                .withType("string!")
+                        withArgument("email")
+                                .withDescription("The email address of the user")
+                                .withType("string")
+                    }
         }
     }
 }
