@@ -1,5 +1,6 @@
 package uk.co.grahamcox.worldbuilder.webapp.users
 
+import uk.co.grahamcox.worldbuilder.webapp.MutationFetcher
 import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistrar
 import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistration
 
@@ -7,7 +8,7 @@ import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistration
  * GraphQL Schema Registration for the User details
  */
 class UserSchemaRegistration(private val userByIdFetcher: UserByIdFetcher,
-                             private val userCreator: UserCreator) : GraphQLRegistration {
+                             private val userCreator: MutationFetcher<UserInput, Map<String, Any>>) : GraphQLRegistration {
     /**
      * Register all of the User portions of the schema
      * @param registrar The registrar to register the schema with
