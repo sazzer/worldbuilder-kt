@@ -1,5 +1,6 @@
 package uk.co.grahamcox.worldbuilder.webapp.users
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
 import org.slf4j.LoggerFactory
@@ -10,8 +11,10 @@ import java.util.*
 /**
  * Data Fetcher that is used to create a new user record
  * @property userEditor The User Editor to create users with
+ * @property objectMapper The Object Mapper to decode the input with
  */
-class UserCreator(private val userEditor: UserEditor) : DataFetcher {
+class UserCreator(private val userEditor: UserEditor,
+                  private val objectMapper: ObjectMapper) : DataFetcher {
     companion object {
         /** The logger to use */
         val LOG = LoggerFactory.getLogger(UserCreator::class.java)
@@ -22,27 +25,19 @@ class UserCreator(private val userEditor: UserEditor) : DataFetcher {
      * @param environment The environment to get the details to create the user with
      * @return the details of the created user
      */
-    override fun get(environment: DataFetchingEnvironment): UserModel {
-        val input = environment.arguments["user"]
+    override fun get(environment: DataFetchingEnvironment): Any {
+        val input = environment.arguments["input"]
 
         return when (input) {
             null -> throw IllegalStateException("No user details were provided")
             !is Map<*, *> -> throw IllegalStateException("User details were not a valid object")
             else -> {
-                val name = input.get("name")
-                val email = input.get("email")
-
-                if (name !is String) {
-                    throw IllegalStateException("User name was not a valid string")
-                }
-                if (email != null && email !is String) {
-                    throw IllegalStateException("User Email was not a valid string")
-                }
+                val userInput = objectMapper.convertValue(input, UserInput::class.java)
 
                 val user = User(
                         identity = null,
-                        name = name,
-                        email = email as String?,
+                        name = userInput.name,
+                        email = userInput.email,
                         enabled = true,
                         verificationCode = UUID.randomUUID().toString()
                 )
@@ -50,7 +45,10 @@ class UserCreator(private val userEditor: UserEditor) : DataFetcher {
                 val result = UserTranslator.translate(savedUser)
                 LOG.debug("Created user: {}", result)
 
-                result
+                mapOf(
+                        "clientMutationId" to userInput.clientMutationId,
+                        "user" to result
+                )
             }
         }
 
