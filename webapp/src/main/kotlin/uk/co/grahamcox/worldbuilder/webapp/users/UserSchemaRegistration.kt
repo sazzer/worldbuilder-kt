@@ -57,7 +57,7 @@ class UserSchemaRegistration(private val userFinder: UserFinder,
                 .apply {
                     withField("clientMutationId")
                             .withDescription("The Client Mutation ID")
-                            .withType("string!")
+                            .withType("id!")
                     withField("name")
                             .withDescription("The name of the User")
                             .withType("string!")
@@ -71,7 +71,7 @@ class UserSchemaRegistration(private val userFinder: UserFinder,
                 .apply {
                     withField("clientMutationId")
                             .withDescription("The Client Mutation ID")
-                            .withType("string!")
+                            .withType("id!")
                     withField("user")
                             .withDescription("The user as it has been created")
                             .withType("user!")
