@@ -7,10 +7,7 @@ import org.springframework.context.annotation.Configuration
 import uk.co.grahamcox.worldbuilder.service.users.UserEditor
 import uk.co.grahamcox.worldbuilder.service.users.UserFinder
 import uk.co.grahamcox.worldbuilder.webapp.MutationFetcher
-import uk.co.grahamcox.worldbuilder.webapp.users.UserByIdFetcher
-import uk.co.grahamcox.worldbuilder.webapp.users.UserCreator
-import uk.co.grahamcox.worldbuilder.webapp.users.UserInput
-import uk.co.grahamcox.worldbuilder.webapp.users.UserSchemaRegistration
+import uk.co.grahamcox.worldbuilder.webapp.users.*
 
 /**
  * Spring Configuration for the API layer to work with Users records
@@ -30,7 +27,10 @@ open class UsersConfig {
     @Autowired
     @Bean
     open fun userCreator(userEditor: UserEditor, objectMapper: ObjectMapper) =
-            MutationFetcher(UserCreator(userEditor), objectMapper)
+            MutationFetcher(UserCreator(userEditor),
+                    UserInput::class.java,
+                    "user",
+                    objectMapper)
 
     /**
      * Configure the User parts of the Schema
@@ -38,6 +38,6 @@ open class UsersConfig {
     @Autowired
     @Bean
     open fun userSchema(userByIdFetcher: UserByIdFetcher,
-                        userCreator: MutationFetcher<UserInput, Map<String, Any>>) =
+                        userCreator: MutationFetcher<UserInput, UserModel>) =
             UserSchemaRegistration(userByIdFetcher, userCreator)
 }

@@ -11,14 +11,11 @@ import java.util.*
  * Data Fetcher that is used to create a new user record
  * @property userEditor The User Editor to create users with
  */
-class UserCreator(private val userEditor: UserEditor) : MutationFetcher.MutationHandler<UserInput, Map<String, Any>> {
+class UserCreator(private val userEditor: UserEditor) : MutationFetcher.MutationHandler<UserInput, UserModel> {
     companion object {
         /** The logger to use */
         val LOG = LoggerFactory.getLogger(UserCreator::class.java)
     }
-
-    /** The input model */
-    override val inputModel = UserInput::class.java
 
     /**
      * Actually create the user from the details provided
@@ -26,7 +23,7 @@ class UserCreator(private val userEditor: UserEditor) : MutationFetcher.Mutation
      * @param environment The environment to get the details to create the user with
      * @return the details of the created user
      */
-    override fun process(input: UserInput, environment: DataFetchingEnvironment): Map<String, Any>? {
+    override fun process(input: UserInput, environment: DataFetchingEnvironment): UserModel {
         val user = User(
                 identity = null,
                 name = input.name,
@@ -38,9 +35,6 @@ class UserCreator(private val userEditor: UserEditor) : MutationFetcher.Mutation
         val result = UserTranslator.translate(savedUser)
         LOG.debug("Created user: {}", result)
 
-        return mapOf(
-                "clientMutationId" to input.clientMutationId,
-                "user" to result
-        )
+        return result
     }
 }
