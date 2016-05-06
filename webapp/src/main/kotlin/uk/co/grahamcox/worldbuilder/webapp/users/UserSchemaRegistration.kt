@@ -1,5 +1,8 @@
 package uk.co.grahamcox.worldbuilder.webapp.users
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import uk.co.grahamcox.worldbuilder.service.users.UserEditor
+import uk.co.grahamcox.worldbuilder.service.users.UserFinder
 import uk.co.grahamcox.worldbuilder.webapp.MutationFetcher
 import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistrar
 import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistration
@@ -7,8 +10,9 @@ import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistration
 /**
  * GraphQL Schema Registration for the User details
  */
-class UserSchemaRegistration(private val userByIdFetcher: UserByIdFetcher,
-                             private val userCreator: MutationFetcher<UserInput, UserModel>) : GraphQLRegistration {
+class UserSchemaRegistration(private val userFinder: UserFinder,
+                             private val userEditor: UserEditor,
+                             private val objectMapper: ObjectMapper) : GraphQLRegistration {
     /**
      * Register all of the User portions of the schema
      * @param registrar The registrar to register the schema with
@@ -43,7 +47,7 @@ class UserSchemaRegistration(private val userByIdFetcher: UserByIdFetcher,
         registrar.newQuery("userById")
                 .withDescription("Look up a User by ID")
                 .withType("user")
-                .withFetcher(userByIdFetcher)
+                .withFetcher(UserByIdFetcher(userFinder))
                 .withArgument("userId")
                 .withDescription("The ID of the User to look up")
                 .withType("id!")
@@ -76,7 +80,10 @@ class UserSchemaRegistration(private val userByIdFetcher: UserByIdFetcher,
         registrar.newMutation("createUser")
                 .withDescription("Register a new User")
                 .withType("newUserResult!")
-                .withFetcher(userCreator)
+                .withFetcher(MutationFetcher(UserCreator(userEditor),
+                        UserInput::class.java,
+                        "user",
+                        objectMapper))
                 .apply {
                     withArgument("input")
                             .withDescription("The details of the user to create")
