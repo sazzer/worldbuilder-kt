@@ -2,8 +2,11 @@ package uk.co.grahamcox.worldbuilder.service.users.dao
 
 import com.mongodb.BasicDBObject
 import com.mongodb.client.MongoCollection
+import com.mongodb.client.model.Filters
 import org.bson.Document
+import org.slf4j.LoggerFactory
 import uk.co.grahamcox.worldbuilder.service.Identity
+import uk.co.grahamcox.worldbuilder.service.ResourceNotFoundException
 import uk.co.grahamcox.worldbuilder.service.dao.BaseMongoDao
 import uk.co.grahamcox.worldbuilder.service.users.User
 import uk.co.grahamcox.worldbuilder.service.users.UserId
@@ -17,6 +20,30 @@ import java.util.*
  */
 class UserMongoDao(collection: MongoCollection<Document>, clock: Clock) :
         UserDao, BaseMongoDao<UserId, User>(collection, clock) {
+    companion object {
+        /** The logger to use */
+        private val LOG = LoggerFactory.getLogger(UserMongoDao::class.java)
+    }
+
+    /**
+     * Attempt to find the user that has the given email address
+     * @param email The email address to search for
+     * @return the user with this email address if found. May be null if one wasn't found
+     */
+    override fun findByEmail(email: String): User? {
+        LOG.debug("Loading the User record with Email address {}", email)
+
+        val record: Document? = collection.find(Filters.eq("email", email))
+                .first()
+
+        LOG.debug("Loaded BSON Record {}", record)
+
+        val result = record?.let { parseRecord(it) }
+
+        LOG.debug("Loaded Model object {}", result)
+        return result
+    }
+
     /**
      * Load a User object from the given MongoDB Document
      * @param record The record to parse

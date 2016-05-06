@@ -79,7 +79,7 @@ class UserSchemaRegistration(private val userFinder: UserFinder,
 
         registrar.newMutation("createUser")
                 .withDescription("Register a new User")
-                .withType("newUserResult!")
+                .withType("newUserResult")
                 .withFetcher(MutationFetcher(UserCreator(userEditor),
                         UserInput::class.java,
                         "user",
