@@ -46,8 +46,7 @@ class MutationFetcher<IN, OUT>(private val handler: MutationHandler<IN, OUT>,
 
                 LOG.debug("Performed mutation {} with input {} giving result {}", environment, input, result)
                 mapOf(
-                        outputName to result,
-                        "clientMutationId" to input["clientMutationId"]
+                        outputName to result
                 )
             }
         }
