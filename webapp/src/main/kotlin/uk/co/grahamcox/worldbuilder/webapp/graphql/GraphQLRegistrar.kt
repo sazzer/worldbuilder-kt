@@ -22,6 +22,8 @@ class GraphQLRegistrar {
     val queryBuilders = mutableMapOf<String, GraphQLFieldBuilder>()
     /** The mutation builders we've got so far */
     val mutationBuilders = mutableMapOf<String, GraphQLFieldBuilder>()
+    /** The union builders we've got so far */
+    val unionBuilders = mutableMapOf<String, GraphQLUnionBuilder>()
 
     /**
      * Check that the given name is not yet used by anything
@@ -31,7 +33,8 @@ class GraphQLRegistrar {
         listOf("object" to objectBuilders,
                 "input object" to inputObjectBuilders,
                 "interface" to interfaceBuilders,
-                "enum" to enumBuilders).forEach {
+                "enum" to enumBuilders,
+                "union" to unionBuilders).forEach {
             if (it.second.containsKey(name)) {
                 throw IllegalArgumentException("The given name is already used as an ${it.first}")
             }
@@ -115,6 +118,19 @@ class GraphQLRegistrar {
     }
 
     /**
+     * Start creating a new Unioj
+     * @param name The name of the new Union
+     * @return the builder to use for the union
+     */
+    fun newUnion(name: String) : GraphQLUnionBuilder {
+        checkNameUnused(name)
+        LOG.debug("Adding a new union: {}", name)
+        return unionBuilders.getOrPut(name) {
+            GraphQLUnionBuilder()
+        }
+    }
+
+    /**
      * Get the builder for the type with the given name.
      * This will return one of the Object, Input Object, Enum or Interface builders depending on what the
      * name is registered as. It might also return null if the name isn't registered
@@ -126,5 +142,6 @@ class GraphQLRegistrar {
             ?: inputObjectBuilders[name]
             ?: enumBuilders[name]
             ?: interfaceBuilders[name]
+            ?: unionBuilders[name]
     }
 }

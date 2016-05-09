@@ -25,6 +25,7 @@ class GraphQLRegistrarTest {
         Assert.assertTrue(registrar.enumBuilders.isEmpty())
         Assert.assertTrue(registrar.interfaceBuilders.isEmpty())
         Assert.assertTrue(registrar.queryBuilders.isEmpty())
+        Assert.assertTrue(registrar.unionBuilders.isEmpty())
     }
 
     /**
@@ -41,6 +42,7 @@ class GraphQLRegistrarTest {
         Assert.assertTrue(registrar.enumBuilders.isEmpty())
         Assert.assertTrue(registrar.objectBuilders.isEmpty())
         Assert.assertTrue(registrar.queryBuilders.isEmpty())
+        Assert.assertTrue(registrar.unionBuilders.isEmpty())
     }
 
     /**
@@ -57,6 +59,7 @@ class GraphQLRegistrarTest {
         Assert.assertTrue(registrar.objectBuilders.isEmpty())
         Assert.assertTrue(registrar.interfaceBuilders.isEmpty())
         Assert.assertTrue(registrar.queryBuilders.isEmpty())
+        Assert.assertTrue(registrar.unionBuilders.isEmpty())
     }
 
     /**
@@ -73,19 +76,38 @@ class GraphQLRegistrarTest {
         Assert.assertTrue(registrar.enumBuilders.isEmpty())
         Assert.assertTrue(registrar.interfaceBuilders.isEmpty())
         Assert.assertTrue(registrar.objectBuilders.isEmpty())
+        Assert.assertTrue(registrar.unionBuilders.isEmpty())
+    }
+
+    /**
+     * Test adding a new union
+     */
+    @Test
+    fun testNewUnion() {
+        val registrar = GraphQLRegistrar()
+
+        val builder = registrar.newUnion("obj")
+
+        Assert.assertEquals(1, registrar.unionBuilders.size)
+        Assert.assertEquals(builder, registrar.unionBuilders["obj"])
+        Assert.assertTrue(registrar.enumBuilders.isEmpty())
+        Assert.assertTrue(registrar.interfaceBuilders.isEmpty())
+        Assert.assertTrue(registrar.objectBuilders.isEmpty())
+        Assert.assertTrue(registrar.queryBuilders.isEmpty())
     }
 
     /**
      * Test that adding an object checks for duplicate names on all other types
      */
     @Test
-    @Parameters("object", "interface", "enum")
+    @Parameters("object", "interface", "enum", "union")
     fun testDuplicateNamesObject(name: String) {
         val registrar = GraphQLRegistrar()
 
         registrar.newObject("object")
         registrar.newInterface("interface")
         registrar.newEnum("enum")
+        registrar.newUnion("union")
 
         try {
             registrar.newObject(name)
@@ -99,13 +121,14 @@ class GraphQLRegistrarTest {
      * Test that adding an interface checks for duplicate names on all other types
      */
     @Test
-    @Parameters("object", "interface", "enum")
+    @Parameters("object", "interface", "enum", "union")
     fun testDuplicateNamesInterface(name: String) {
         val registrar = GraphQLRegistrar()
 
         registrar.newObject("object")
         registrar.newInterface("interface")
         registrar.newEnum("enum")
+        registrar.newUnion("union")
 
         try {
             registrar.newInterface(name)
@@ -119,13 +142,14 @@ class GraphQLRegistrarTest {
      * Test that adding an enum checks for duplicate names on all other types
      */
     @Test
-    @Parameters("object", "interface", "enum")
+    @Parameters("object", "interface", "enum", "union")
     fun testDuplicateNamesEnum(name: String) {
         val registrar = GraphQLRegistrar()
 
         registrar.newObject("object")
         registrar.newInterface("interface")
         registrar.newEnum("enum")
+        registrar.newUnion("union")
 
         try {
             registrar.newEnum(name)
@@ -139,13 +163,14 @@ class GraphQLRegistrarTest {
      * Test that adding a query does not check for duplicate names on all other types
      */
     @Test
-    @Parameters("object", "interface", "enum")
+    @Parameters("object", "interface", "enum", "union")
     fun testDuplicateNamesQuery(name: String) {
         val registrar = GraphQLRegistrar()
 
         registrar.newObject("object")
         registrar.newInterface("interface")
         registrar.newEnum("enum")
+        registrar.newUnion("union")
 
         registrar.newQuery(name)
     }
@@ -160,10 +185,12 @@ class GraphQLRegistrarTest {
         registrar.newObject("object")
         registrar.newInterface("interface")
         registrar.newEnum("enum")
+        registrar.newUnion("union")
 
         Assert.assertTrue(registrar.getTypeBuilder("object") is GraphQLObjectBuilder)
         Assert.assertTrue(registrar.getTypeBuilder("interface") is GraphQLObjectBuilder)
         Assert.assertTrue(registrar.getTypeBuilder("enum") is GraphQLEnumBuilder)
+        Assert.assertTrue(registrar.getTypeBuilder("union") is GraphQLUnionBuilder)
         Assert.assertTrue(registrar.getTypeBuilder("other") == null)
     }
 }

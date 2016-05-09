@@ -26,7 +26,7 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
         )
     }
     /** The list of type names that we've already built */
-    private val builtNames = mutableListOf<String>()
+    private val builtNames = mutableMapOf<String, GraphQLType>()
 
     /**
      * Build the GraphQL Schema from everything registered in the given registry
@@ -156,6 +156,43 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
     }
 
     /**
+     * Build a new Union definition
+     * @param name The name of the object
+     * @param builder The object builder to use
+     */
+    private fun build(name: String,
+                      builder: GraphQLUnionBuilder) : GraphQLUnionType {
+        LOG.debug("Building GraphQL Union for name {}", name)
+        val unionBuilder = GraphQLUnionType.newUnionType()
+                .name(name)
+                .description(builder.description)
+
+        val comparisons = mutableListOf<Pair<GraphQLObjectType, (Any) -> Boolean>>()
+
+        builder.unionTypes.forEach { e ->
+            val possibleType = builtNames.getOrElse(e.key) {
+                buildOutputType(GraphQLTypeName(e.key, false, false, false))
+            }
+
+            if (possibleType !is GraphQLObjectType) {
+                throw IllegalArgumentException("Union types must be Object Types")
+            }
+
+            val comparison = Pair(possibleType, e.value)
+            unionBuilder.possibleType(possibleType)
+            comparisons.add(comparison)
+        }
+
+        unionBuilder.typeResolver { input ->
+            comparisons.filter { it.second.invoke(input) }
+                    .first()
+                    .first
+        }
+        LOG.debug("Built GraphQL Union for name {}", name)
+        return unionBuilder.build()
+    }
+
+    /**
      * Build a new Input Object definition
      * @param name The name of the Input Object
      * @param builder The Input Object builder to use
@@ -191,18 +228,15 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
                 GraphQLTypeReference(type.typename)
             } else {
                 val builder = registry.getTypeBuilder(type.typename)
-                when (builder) {
+                val builtType = when (builder) {
                     null -> throw IllegalArgumentException("Requested an unknown type name: ${type.typename}")
-                    is GraphQLEnumBuilder -> {
-                        builtNames.add(type.typename)
-                        build(type.typename, builder)
-                    }
-                    is GraphQLObjectBuilder -> {
-                        builtNames.add(type.typename)
-                        build(type.typename, builder)
-                    }
+                    is GraphQLEnumBuilder -> build(type.typename, builder)
+                    is GraphQLObjectBuilder -> build(type.typename, builder)
+                    is GraphQLUnionBuilder -> build(type.typename, builder)
                     else -> throw IllegalArgumentException("Request to build unsupported type ${builder.javaClass}")
                 }
+                builtNames.put(type.typename, builtType)
+                builtType
             } as GraphQLOutputType
 
         val listWrapper = when (type.list) {
@@ -239,23 +273,17 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
                     GraphQLTypeReference(type.typename)
                 } else {
                     val builder = registry.getTypeBuilder(type.typename)
-                    when (builder) {
+                    val builtType = when (builder) {
                         null -> throw IllegalArgumentException("Requested an unknown type name: ${type.typename}")
-                        is GraphQLEnumBuilder -> {
-                            builtNames.add(type.typename)
-                            build(type.typename, builder)
-                        }
-                        is GraphQLObjectBuilder -> {
-                            builtNames.add(type.typename)
-                            build(type.typename, builder)
-                        }
-                        is GraphQLInputObjectBuilder -> {
-                            builtNames.add(type.typename)
-                            build(type.typename, builder)
-                        }
+                        is GraphQLEnumBuilder -> build(type.typename, builder)
+                        is GraphQLObjectBuilder -> build(type.typename, builder)
+                        is GraphQLInputObjectBuilder -> build(type.typename, builder)
                         else -> throw IllegalArgumentException("Request to build unsupported type ${builder.javaClass}")
                     }
+                    builtNames.put(type.typename, builtType)
+                    builtType
                 } as GraphQLInputType
+
 
         val listWrapper = when (type.list) {
             true -> when (type.nonNullableList) {

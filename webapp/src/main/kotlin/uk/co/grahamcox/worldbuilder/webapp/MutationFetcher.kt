@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory
  */
 class MutationFetcher<IN, OUT>(private val handler: MutationHandler<IN, OUT>,
                                private val inputClass: Class<IN>,
-                               private val outputName: String,
                                private val objectMapper: ObjectMapper) : DataFetcher {
     companion object {
         /** The logger to use */
@@ -33,7 +32,7 @@ class MutationFetcher<IN, OUT>(private val handler: MutationHandler<IN, OUT>,
         fun process(input: IN, environment: DataFetchingEnvironment) : OUT?
     }
 
-    override fun get(environment: DataFetchingEnvironment): Map<String, Any?> {
+    override fun get(environment: DataFetchingEnvironment): OUT? {
         val input = environment.arguments["input"]
 
         return when (input) {
@@ -45,9 +44,7 @@ class MutationFetcher<IN, OUT>(private val handler: MutationHandler<IN, OUT>,
                 val result = handler.process(parsedInput, environment)
 
                 LOG.debug("Performed mutation {} with input {} giving result {}", environment, input, result)
-                mapOf(
-                        outputName to result
-                )
+                result
             }
         }
     }

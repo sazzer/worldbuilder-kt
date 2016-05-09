@@ -71,12 +71,27 @@ class UserSchemaRegistration(private val userFinder: UserFinder,
                             .withType("user!")
                 }
 
+        registrar.newObject("errors")
+                .withDescription("Details of errors with this field")
+                .apply {
+                    withField("globalErrors")
+                            .withDescription("Details of any global errors - i.e. ones that aren't specific to a single field")
+                            .withType("[string!]!")
+                    withField("fieldErrors")
+                            .withDescription("Details of any field-specific errors")
+                            .withType("[string!]!")
+                }
+
+        registrar.newUnion("mutateUserResult")
+                .withDescription("Result of mutating a user")
+                .withType("user", UserModel::class)
+                .withType("errors", String::class)
+
         registrar.newMutation("createUser")
                 .withDescription("Register a new User")
-                .withType("newUserResult")
+                .withType("mutateUserResult!")
                 .withFetcher(MutationFetcher(UserCreator(userEditor),
                         UserInput::class.java,
-                        "user",
                         objectMapper))
                 .apply {
                     withArgument("input")
