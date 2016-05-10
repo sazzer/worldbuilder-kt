@@ -22,6 +22,7 @@
         <module>webapp</module>
         <module>embeddedmongo</module>
         <module>graphql</module>
+        <module>verification</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/sazzer/worldbuilder.git</connection>
@@ -277,6 +278,11 @@
                     </configuration>
                 </plugin>
                 <plugin>
+                    <groupId>com.github.joelittlejohn.embedmongo</groupId>
+                    <artifactId>embedmongo-maven-plugin</artifactId>
+                    <version>0.3.4</version>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>2.6</version>
@@ -361,6 +367,16 @@
                     <configuration>
                         <failOnMissingWebXml>false</failOnMissingWebXml>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-maven2-plugin</artifactId>
+                    <version>1.4.19</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.10</version>
                 </plugin>
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
