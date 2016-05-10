@@ -9,6 +9,7 @@ import uk.co.grahamcox.worldbuilder.webapp.DebugController
 import uk.co.grahamcox.worldbuilder.webapp.ErrorSchemaRegistration
 import uk.co.grahamcox.worldbuilder.webapp.GraphQLController
 import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
+import uk.co.grahamcox.worldbuilder.webapp.health.HealthCheckSchemaRegistration
 import java.time.Clock
 
 /**
@@ -44,4 +45,10 @@ open class WebappConfig {
      */
     @Bean
     open fun errorSchema() = ErrorSchemaRegistration()
+
+    /**
+     * Register the parts of the GraphQL Scheam that handle the health checks
+     */
+    @Bean
+    open fun healthCheckSchema() = HealthCheckSchemaRegistration()
 }
