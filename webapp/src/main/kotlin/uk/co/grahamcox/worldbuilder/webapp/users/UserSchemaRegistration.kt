@@ -71,17 +71,6 @@ class UserSchemaRegistration(private val userFinder: UserFinder,
                             .withType("user!")
                 }
 
-        registrar.newObject("errors")
-                .withDescription("Details of errors with this field")
-                .apply {
-                    withField("globalErrors")
-                            .withDescription("Details of any global errors - i.e. ones that aren't specific to a single field")
-                            .withType("[string!]!")
-                    withField("fieldErrors")
-                            .withDescription("Details of any field-specific errors")
-                            .withType("[string!]!")
-                }
-
         registrar.newUnion("mutateUserResult")
                 .withDescription("Result of mutating a user")
                 .withType("user", UserModel::class)

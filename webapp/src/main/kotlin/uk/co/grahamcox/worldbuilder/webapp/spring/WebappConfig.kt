@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Import
 import uk.co.grahamcox.worldbuilder.webapp.DebugController
+import uk.co.grahamcox.worldbuilder.webapp.ErrorSchemaRegistration
 import uk.co.grahamcox.worldbuilder.webapp.GraphQLController
 import uk.co.grahamcox.worldbuilder.webapp.IdGenerator
 import java.time.Clock
@@ -37,4 +38,10 @@ open class WebappConfig {
     @Autowired
     @Bean
     open fun idGenerator(objectMapper: ObjectMapper) = IdGenerator(objectMapper)
+
+    /**
+     * Register the parts of the GraphQL Schema that handles error responses
+     */
+    @Bean
+    open fun errorSchema() = ErrorSchemaRegistration()
 }
