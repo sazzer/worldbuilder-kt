@@ -15,7 +15,7 @@ class ErrorSchemaRegistration : GraphQLRegistration {
         registrar.newObject("fieldError")
                 .withDescription("An error that occurred with the data in a single field")
                 .apply {
-                    withField("code")
+                    withField("errorCode")
                             .withDescription("The error code for the error that occurred")
                             .withType("id!")
                     withField("field")
@@ -29,7 +29,7 @@ class ErrorSchemaRegistration : GraphQLRegistration {
         registrar.newObject("globalError")
                 .withDescription("An error that occurred with the request as a whole")
                 .apply {
-                    withField("code")
+                    withField("errorCode")
                             .withDescription("The error code for the error that occurred")
                             .withType("id!")
                     withField("message")

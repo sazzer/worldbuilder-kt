@@ -3,6 +3,7 @@ package uk.co.grahamcox.worldbuilder.webapp.users
 import com.fasterxml.jackson.databind.ObjectMapper
 import uk.co.grahamcox.worldbuilder.service.users.UserEditor
 import uk.co.grahamcox.worldbuilder.service.users.UserFinder
+import uk.co.grahamcox.worldbuilder.webapp.ErrorResponseModel
 import uk.co.grahamcox.worldbuilder.webapp.MutationFetcher
 import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistrar
 import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistration
@@ -74,7 +75,7 @@ class UserSchemaRegistration(private val userFinder: UserFinder,
         registrar.newUnion("mutateUserResult")
                 .withDescription("Result of mutating a user")
                 .withType("user", UserModel::class)
-                .withType("errors", String::class)
+                .withType("errors", ErrorResponseModel::class)
 
         registrar.newMutation("createUser")
                 .withDescription("Register a new User")

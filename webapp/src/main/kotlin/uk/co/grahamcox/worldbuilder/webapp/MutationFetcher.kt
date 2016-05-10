@@ -32,7 +32,7 @@ class MutationFetcher<IN, OUT>(private val handler: MutationHandler<IN, OUT>,
         fun process(input: IN, environment: DataFetchingEnvironment) : OUT?
     }
 
-    override fun get(environment: DataFetchingEnvironment): OUT? {
+    override fun get(environment: DataFetchingEnvironment): Any? {
         val input = environment.arguments["input"]
 
         return when (input) {
@@ -41,7 +41,11 @@ class MutationFetcher<IN, OUT>(private val handler: MutationHandler<IN, OUT>,
             else -> {
                 LOG.debug("Performing mutation {} with input {}", environment, input)
                 val parsedInput = objectMapper.convertValue(input, inputClass)
-                val result = handler.process(parsedInput, environment)
+                val result = try {
+                    handler.process(parsedInput, environment)
+                } catch (e: FetcherException) {
+                    ErrorResponseModel(globalErrors = e.globalErrors, fieldErrors = e.fieldErrors)
+                }
 
                 LOG.debug("Performed mutation {} with input {} giving result {}", environment, input, result)
                 result

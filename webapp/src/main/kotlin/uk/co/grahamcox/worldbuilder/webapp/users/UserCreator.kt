@@ -2,8 +2,11 @@ package uk.co.grahamcox.worldbuilder.webapp.users
 
 import graphql.schema.DataFetchingEnvironment
 import org.slf4j.LoggerFactory
+import uk.co.grahamcox.worldbuilder.service.users.DuplicateUserException
 import uk.co.grahamcox.worldbuilder.service.users.User
 import uk.co.grahamcox.worldbuilder.service.users.UserEditor
+import uk.co.grahamcox.worldbuilder.webapp.FetcherException
+import uk.co.grahamcox.worldbuilder.webapp.GlobalError
 import uk.co.grahamcox.worldbuilder.webapp.MutationFetcher
 import java.util.*
 
@@ -31,7 +34,13 @@ class UserCreator(private val userEditor: UserEditor) : MutationFetcher.Mutation
                 enabled = true,
                 verificationCode = UUID.randomUUID().toString()
         )
-        val savedUser = userEditor.saveUser(user)
+        val savedUser = try {
+            userEditor.saveUser(user)
+        } catch (e: DuplicateUserException) {
+            throw FetcherException(globalErrors = listOf(
+                    GlobalError(errorCode = "DUPLICATE_USER", message = "The user details already exist")
+            ))
+        }
         val result = UserTranslator.translate(savedUser)
         LOG.debug("Created user: {}", result)
 
