@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.webapp.graphql
+package uk.co.grahamcox.graphql.builder
 
 /**
  * Builder to use to build GraphQL Object types

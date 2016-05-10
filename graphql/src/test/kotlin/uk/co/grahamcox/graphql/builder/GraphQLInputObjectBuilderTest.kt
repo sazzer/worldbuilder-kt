@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.webapp.graphql
+package uk.co.grahamcox.graphql.builder
 
 import org.junit.Assert
 import org.junit.Test
@@ -12,7 +12,7 @@ class GraphQLInputObjectBuilderTest {
      */
     @Test
     fun testFields() {
-        val builder = GraphQLInputObjectBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLInputObjectBuilder()
                 .withDescription("The Desc")
                 .apply {
                     withField("name")

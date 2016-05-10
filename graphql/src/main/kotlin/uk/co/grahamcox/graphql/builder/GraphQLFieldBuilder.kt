@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.webapp.graphql
+package uk.co.grahamcox.graphql.builder
 
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment

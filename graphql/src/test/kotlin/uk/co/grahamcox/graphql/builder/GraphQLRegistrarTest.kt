@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.webapp.graphql
+package uk.co.grahamcox.graphql.builder
 
 import junitparams.JUnitParamsRunner
 import junitparams.Parameters
@@ -16,7 +16,7 @@ class GraphQLRegistrarTest {
      */
     @Test
     fun testNewObject() {
-        val registrar = GraphQLRegistrar()
+        val registrar = uk.co.grahamcox.graphql.builder.GraphQLRegistrar()
 
         val builder = registrar.newObject("obj")
 
@@ -33,7 +33,7 @@ class GraphQLRegistrarTest {
      */
     @Test
     fun testNewInterface() {
-        val registrar = GraphQLRegistrar()
+        val registrar = uk.co.grahamcox.graphql.builder.GraphQLRegistrar()
 
         val builder = registrar.newInterface("obj")
 
@@ -50,7 +50,7 @@ class GraphQLRegistrarTest {
      */
     @Test
     fun testNewEnum() {
-        val registrar = GraphQLRegistrar()
+        val registrar = uk.co.grahamcox.graphql.builder.GraphQLRegistrar()
 
         val builder = registrar.newEnum("obj")
 
@@ -67,7 +67,7 @@ class GraphQLRegistrarTest {
      */
     @Test
     fun testNewQuery() {
-        val registrar = GraphQLRegistrar()
+        val registrar = uk.co.grahamcox.graphql.builder.GraphQLRegistrar()
 
         val builder = registrar.newQuery("obj")
 
@@ -84,7 +84,7 @@ class GraphQLRegistrarTest {
      */
     @Test
     fun testNewUnion() {
-        val registrar = GraphQLRegistrar()
+        val registrar = uk.co.grahamcox.graphql.builder.GraphQLRegistrar()
 
         val builder = registrar.newUnion("obj")
 
@@ -102,7 +102,7 @@ class GraphQLRegistrarTest {
     @Test
     @Parameters("object", "interface", "enum", "union")
     fun testDuplicateNamesObject(name: String) {
-        val registrar = GraphQLRegistrar()
+        val registrar = uk.co.grahamcox.graphql.builder.GraphQLRegistrar()
 
         registrar.newObject("object")
         registrar.newInterface("interface")
@@ -123,7 +123,7 @@ class GraphQLRegistrarTest {
     @Test
     @Parameters("object", "interface", "enum", "union")
     fun testDuplicateNamesInterface(name: String) {
-        val registrar = GraphQLRegistrar()
+        val registrar = uk.co.grahamcox.graphql.builder.GraphQLRegistrar()
 
         registrar.newObject("object")
         registrar.newInterface("interface")
@@ -144,7 +144,7 @@ class GraphQLRegistrarTest {
     @Test
     @Parameters("object", "interface", "enum", "union")
     fun testDuplicateNamesEnum(name: String) {
-        val registrar = GraphQLRegistrar()
+        val registrar = uk.co.grahamcox.graphql.builder.GraphQLRegistrar()
 
         registrar.newObject("object")
         registrar.newInterface("interface")
@@ -165,7 +165,7 @@ class GraphQLRegistrarTest {
     @Test
     @Parameters("object", "interface", "enum", "union")
     fun testDuplicateNamesQuery(name: String) {
-        val registrar = GraphQLRegistrar()
+        val registrar = uk.co.grahamcox.graphql.builder.GraphQLRegistrar()
 
         registrar.newObject("object")
         registrar.newInterface("interface")
@@ -180,17 +180,17 @@ class GraphQLRegistrarTest {
      */
     @Test
     fun getBuilderByName() {
-        val registrar = GraphQLRegistrar()
+        val registrar = uk.co.grahamcox.graphql.builder.GraphQLRegistrar()
 
         registrar.newObject("object")
         registrar.newInterface("interface")
         registrar.newEnum("enum")
         registrar.newUnion("union")
 
-        Assert.assertTrue(registrar.getTypeBuilder("object") is GraphQLObjectBuilder)
-        Assert.assertTrue(registrar.getTypeBuilder("interface") is GraphQLObjectBuilder)
-        Assert.assertTrue(registrar.getTypeBuilder("enum") is GraphQLEnumBuilder)
-        Assert.assertTrue(registrar.getTypeBuilder("union") is GraphQLUnionBuilder)
+        Assert.assertTrue(registrar.getTypeBuilder("object") is uk.co.grahamcox.graphql.builder.GraphQLObjectBuilder)
+        Assert.assertTrue(registrar.getTypeBuilder("interface") is uk.co.grahamcox.graphql.builder.GraphQLObjectBuilder)
+        Assert.assertTrue(registrar.getTypeBuilder("enum") is uk.co.grahamcox.graphql.builder.GraphQLEnumBuilder)
+        Assert.assertTrue(registrar.getTypeBuilder("union") is uk.co.grahamcox.graphql.builder.GraphQLUnionBuilder)
         Assert.assertTrue(registrar.getTypeBuilder("other") == null)
     }
 }

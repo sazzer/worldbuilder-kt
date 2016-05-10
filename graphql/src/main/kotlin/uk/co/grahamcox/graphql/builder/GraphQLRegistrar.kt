@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.webapp.graphql
+package uk.co.grahamcox.graphql.builder
 
 import org.slf4j.LoggerFactory
 
@@ -72,7 +72,7 @@ class GraphQLRegistrar {
      * @param name The name of the new Interface
      * @return the builder to use for the Interface
      */
-    fun newInterface(name: String) : GraphQLObjectBuilder{
+    fun newInterface(name: String) : GraphQLObjectBuilder {
         checkNameUnused(name)
         LOG.debug("Adding a new interface: {}", name)
         return interfaceBuilders.getOrPut(name) {

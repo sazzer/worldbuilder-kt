@@ -5,8 +5,8 @@ import uk.co.grahamcox.worldbuilder.service.users.UserEditor
 import uk.co.grahamcox.worldbuilder.service.users.UserFinder
 import uk.co.grahamcox.worldbuilder.webapp.ErrorResponseModel
 import uk.co.grahamcox.worldbuilder.webapp.MutationFetcher
-import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistrar
-import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistration
+import uk.co.grahamcox.graphql.builder.GraphQLRegistrar
+import uk.co.grahamcox.graphql.builder.GraphQLRegistration
 
 /**
  * GraphQL Schema Registration for the User details

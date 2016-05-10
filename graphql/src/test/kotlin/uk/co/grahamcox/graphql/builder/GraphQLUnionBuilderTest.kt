@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.webapp.graphql
+package uk.co.grahamcox.graphql.builder
 
 import org.junit.Assert
 import org.junit.Test
@@ -12,7 +12,7 @@ class GraphQLUnionBuilderTest {
      */
     @Test
     fun testCustomResolver() {
-        val builder = GraphQLUnionBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLUnionBuilder()
                 .withDescription("The description")
                 .withType("first", { o -> "first" == o })
                 .withType("second", { o -> 2 == o })
@@ -32,7 +32,7 @@ class GraphQLUnionBuilderTest {
      */
     @Test
     fun testClassResolver() {
-        val builder = GraphQLUnionBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLUnionBuilder()
                 .withDescription("The description")
                 .withType("first", String::class)
                 .withType("second", Number::class)

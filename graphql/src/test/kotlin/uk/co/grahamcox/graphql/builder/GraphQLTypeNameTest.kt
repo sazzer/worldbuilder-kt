@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.webapp.graphql
+package uk.co.grahamcox.graphql.builder
 
 import junitparams.JUnitParamsRunner
 import junitparams.Parameters
@@ -22,7 +22,7 @@ class GraphQLTypeNameTest {
     @Parameters(method = "paramsForSuccess")
     @Test
     fun testParseSuccess(input: String, type: String, nonNullable: Boolean, list: Boolean, nonNullableList: Boolean) {
-        val result = GraphQLTypeName.parse(input)
+        val result = uk.co.grahamcox.graphql.builder.GraphQLTypeName.parse(input)
         Assert.assertEquals("Type name doesn't match", type, result.typename)
         Assert.assertEquals("Nullability doesn't match", nonNullable, result.nonNullable)
         Assert.assertEquals("List doesn't match", list, result.list)
@@ -48,7 +48,7 @@ class GraphQLTypeNameTest {
     @Parameters(method = "paramsForFailure")
     @Test(expected = IllegalArgumentException::class)
     fun testParseFailure(input: String) {
-        GraphQLTypeName.parse(input)
+        uk.co.grahamcox.graphql.builder.GraphQLTypeName.parse(input)
     }
 
     /**

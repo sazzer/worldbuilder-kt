@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.webapp.graphql
+package uk.co.grahamcox.graphql.builder
 
 import graphql.schema.DataFetcher
 import graphql.schema.DataFetchingEnvironment
@@ -15,14 +15,14 @@ class GraphQLFieldBuilderTest {
      */
     @Test
     fun testStaticValue() {
-        val builder = GraphQLFieldBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLFieldBuilder()
                 .withDescription("The Desc")
                 .withType("string")
                 .withDeprecationReason("It's old")
                 .withValue("Hello")
 
         Assert.assertEquals("The Desc", builder.description)
-        Assert.assertEquals(GraphQLTypeName("string", false, false, false), builder.type)
+        Assert.assertEquals(uk.co.grahamcox.graphql.builder.GraphQLTypeName("string", false, false, false), builder.type)
         Assert.assertEquals("It's old", builder.deprecationReason)
         Assert.assertNotNull(builder.fetcher)
         Assert.assertEquals("Hello", builder.fetcher?.get(null))
@@ -34,7 +34,7 @@ class GraphQLFieldBuilderTest {
      */
     @Test
     fun testDynamicValue() {
-        val builder = GraphQLFieldBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLFieldBuilder()
                 .withFetcher(object : DataFetcher {
                     override fun get(environment: DataFetchingEnvironment?) = environment
                 })
@@ -49,7 +49,7 @@ class GraphQLFieldBuilderTest {
      */
     @Test
     fun testArguments() {
-        val builder = GraphQLFieldBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLFieldBuilder()
                 .apply {
                     withArgument("name")
                             .withDescription("The name")

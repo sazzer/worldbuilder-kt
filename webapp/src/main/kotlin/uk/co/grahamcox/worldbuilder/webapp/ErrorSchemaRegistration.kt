@@ -1,7 +1,7 @@
 package uk.co.grahamcox.worldbuilder.webapp
 
-import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistrar
-import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistration
+import uk.co.grahamcox.graphql.builder.GraphQLRegistrar
+import uk.co.grahamcox.graphql.builder.GraphQLRegistration
 
 /**
  * Registration details for the error schema

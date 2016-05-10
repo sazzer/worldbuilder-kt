@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.webapp.graphql
+package uk.co.grahamcox.graphql.builder
 
 import org.junit.Assert
 import org.junit.Test
@@ -18,7 +18,7 @@ class GraphQLEnumBuilderTest {
      */
     @Test
     fun testAddFromEnumClass() {
-        val builder = GraphQLEnumBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLEnumBuilder()
         builder.withMembers(TestEnum::class)
 
         Assert.assertEquals(setOf("RED", "GREEN", "BLUE"), builder.members)
@@ -29,7 +29,7 @@ class GraphQLEnumBuilderTest {
      */
     @Test
     fun testAddIndividually() {
-        val builder = GraphQLEnumBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLEnumBuilder()
                 .withMember("RED")
                 .withMember("GREEN")
                 .withMember("BLUE")
@@ -42,7 +42,7 @@ class GraphQLEnumBuilderTest {
      */
     @Test
     fun testAddVarargs() {
-        val builder = GraphQLEnumBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLEnumBuilder()
                 .withMembers("RED", "GREEN", "BLUE")
 
         Assert.assertEquals(setOf("RED", "GREEN", "BLUE"), builder.members)
@@ -53,7 +53,7 @@ class GraphQLEnumBuilderTest {
      */
     @Test
     fun testAddCollection() {
-        val builder = GraphQLEnumBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLEnumBuilder()
                 .withMembers(setOf("RED", "GREEN", "BLUE"))
 
         Assert.assertEquals(setOf("RED", "GREEN", "BLUE"), builder.members)
@@ -64,7 +64,7 @@ class GraphQLEnumBuilderTest {
      */
     @Test
     fun testDescription() {
-        val builder = GraphQLEnumBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLEnumBuilder()
                 .withDescription("Hello")
                 .withMembers(setOf("RED", "GREEN", "BLUE"))
 

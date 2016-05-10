@@ -21,6 +21,7 @@
     <modules>
         <module>webapp</module>
         <module>embeddedmongo</module>
+        <module>graphql</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/sazzer/worldbuilder.git</connection>

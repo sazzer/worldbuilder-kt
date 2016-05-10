@@ -7,9 +7,9 @@ import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.co.grahamcox.worldbuilder.webapp.GraphQLController
-import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistrar
-import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLRegistration
-import uk.co.grahamcox.worldbuilder.webapp.graphql.GraphQLSchemaBuilder
+import uk.co.grahamcox.graphql.builder.GraphQLRegistrar
+import uk.co.grahamcox.graphql.builder.GraphQLRegistration
+import uk.co.grahamcox.graphql.builder.GraphQLSchemaBuilder
 
 /**
  * Spring Configuration for the GraphQL setup

@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.webapp.graphql
+package uk.co.grahamcox.graphql.builder
 
 import org.junit.Assert
 import org.junit.Test
@@ -12,7 +12,7 @@ class GraphQLObjectBuilderTest {
      */
     @Test
     fun testFields() {
-        val builder = GraphQLObjectBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLObjectBuilder()
                 .withDescription("The Desc")
                 .apply {
                     withField("name")
@@ -34,7 +34,7 @@ class GraphQLObjectBuilderTest {
      */
     @Test
     fun testSingleInterfaces() {
-        val builder = GraphQLObjectBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLObjectBuilder()
                 .withInterface("a")
                 .withInterface("b")
                 .withInterface("c")
@@ -47,7 +47,7 @@ class GraphQLObjectBuilderTest {
      */
     @Test
     fun testVarargsInterfaces() {
-        val builder = GraphQLObjectBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLObjectBuilder()
                 .withInterfaces("a", "b", "c")
 
         Assert.assertEquals(setOf("a", "b", "c"), builder.interfaces)
@@ -58,7 +58,7 @@ class GraphQLObjectBuilderTest {
      */
     @Test
     fun testInterfacesCollection() {
-        val builder = GraphQLObjectBuilder()
+        val builder = uk.co.grahamcox.graphql.builder.GraphQLObjectBuilder()
                 .withInterfaces(setOf("a", "b", "c"))
 
         Assert.assertEquals(setOf("a", "b", "c"), builder.interfaces)
