@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.dao.embedded.transformers
+package uk.co.grahamcox.dao.embedded.mongodb.transformers
 
 import junitparams.JUnitParamsRunner
 import junitparams.Parameters
@@ -11,7 +11,7 @@ import java.util.*
 /**
  * Unit tests for the Date Time Transformer
  */
-@RunWith(JUnitParamsRunner::class)
+@org.junit.runner.RunWith(junitparams.JUnitParamsRunner::class)
 class DateTimeTransformerTest {
     /** The test subject */
     val testSubject = DateTimeTransformer()
@@ -19,7 +19,7 @@ class DateTimeTransformerTest {
     /**
      * Test getting the current time
      */
-    @Test
+    @org.junit.Test
     fun testNow() {
         val now = Instant.now()
         assertClose(now, "now")
@@ -28,8 +28,8 @@ class DateTimeTransformerTest {
     /**
      * Test getting an exact time today
      */
-    @Test
-    @Parameters(method = "paramsForExactTime")
+    @org.junit.Test
+    @junitparams.Parameters(method = "paramsForExactTime")
     fun testExactTimeToday(input: String, hour: Int, minute: Int, second: Int) {
         val expected = ZonedDateTime.now(ZoneId.of("UTC"))
                 .withHour(hour)
@@ -42,8 +42,8 @@ class DateTimeTransformerTest {
     /**
      * Test offsetting the current time by a period
      */
-    @Test
-    @Parameters(method = "paramsForOffsetTime")
+    @org.junit.Test
+    @junitparams.Parameters(method = "paramsForOffsetTime")
     fun testOffsetTime(input: String, expectedDuration: Duration) {
         val expected = Instant.now().plus(expectedDuration)
         assertClose(expected, input)
@@ -55,16 +55,16 @@ class DateTimeTransformerTest {
     fun assertClose(expected: Instant, input: String) {
         val transformed = testSubject.transform(input) as Date
         val difference = Duration.between(expected, transformed.toInstant())
-        Assert.assertTrue("Difference in times was ${difference}", difference.abs().toMillis() < 1000)
+        org.junit.Assert.assertTrue("Difference in times was ${difference}", difference.abs().toMillis() < 1000)
     }
 
     /**
      * Test transforming an exact value of some kind
      */
-    @Parameters(method = "paramsForExactValues")
-    @Test
+    @junitparams.Parameters(method = "paramsForExactValues")
+    @org.junit.Test
     fun testExactValues(input: Any?, expected: Any?) {
-        Assert.assertEquals(expected, testSubject.transform(input))
+        org.junit.Assert.assertEquals(expected, testSubject.transform(input))
     }
 
     /**

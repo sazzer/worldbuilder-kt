@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.dao.embedded
+package uk.co.grahamcox.dao.embedded.mongodb
 
 /**
  * Annotation to indicate that a MongoDB database should be started for the test

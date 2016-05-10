@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.dao.embedded
+package uk.co.grahamcox.dao.embedded.mongodb
 
 import com.mongodb.BasicDBObject
 import com.mongodb.MongoClient
@@ -18,28 +18,28 @@ class EmbeddedMongoRuleTest {
     }
 
     /** The actual rule */
-    @Rule
+    @org.junit.Rule
     @JvmField
     val embeddedMongoRule = EmbeddedMongoRule()
 
     /**
      * Test that the rule sets the properties needed to connect
      */
-    @Test
+    @org.junit.Test
     @StartMongoDb
     fun testMongoDbProperties() {
         LOG.debug("MongoDB is running on {}:{}", embeddedMongoRule.mongoDbHost, embeddedMongoRule.mongoDbPort)
         LOG.debug("Database name is {}", embeddedMongoRule.databaseName)
-        Assert.assertNotNull(embeddedMongoRule.mongoDbHost)
-        Assert.assertNotNull(embeddedMongoRule.mongoDbPort)
-        Assert.assertNotNull(embeddedMongoRule.databaseName)
-        Assert.assertNotNull(embeddedMongoRule.mongoClient)
+        org.junit.Assert.assertNotNull(embeddedMongoRule.mongoDbHost)
+        org.junit.Assert.assertNotNull(embeddedMongoRule.mongoDbPort)
+        org.junit.Assert.assertNotNull(embeddedMongoRule.databaseName)
+        org.junit.Assert.assertNotNull(embeddedMongoRule.mongoClient)
     }
 
     /**
      * Test that the rule starts up a database
      */
-    @Test
+    @org.junit.Test
     @StartMongoDb
     fun testMongoDbStarted() {
         LOG.debug("MongoDB is running on {}:{}", embeddedMongoRule.mongoDbHost, embeddedMongoRule.mongoDbPort)
@@ -50,7 +50,7 @@ class EmbeddedMongoRuleTest {
     /**
      * Test that the rule seeds the database correctly
      */
-    @Test
+    @org.junit.Test
     @StartMongoDb
     fun testProvidedClient() {
         LOG.debug("MongoDB is running on {}:{}", embeddedMongoRule.mongoDbHost, embeddedMongoRule.mongoDbPort)
@@ -60,19 +60,19 @@ class EmbeddedMongoRuleTest {
     /**
      * Test that the rule starts up a database
      */
-    @Test
+    @org.junit.Test
     @StartMongoDb(arrayOf(
-            SeedCollection(collection = "firstCollection", source = "/uk/co/grahamcox/worldbuilder/dao/embedded/first.json")
+            SeedCollection(collection = "firstCollection", source = "/uk/co/grahamcox/dao/embedded/mongodb/first.json")
     ))
     fun testSeed() {
         LOG.debug("MongoDB is running on {}:{}", embeddedMongoRule.mongoDbHost, embeddedMongoRule.mongoDbPort)
         LOG.debug("Database names: {}", embeddedMongoRule.mongoClient!!.listDatabaseNames().toList())
 
         val db = embeddedMongoRule.mongoDatabase
-        Assert.assertTrue(db.listCollectionNames().toList().contains("firstCollection"))
-        Assert.assertEquals(2, db.getCollection("firstCollection").count())
-        Assert.assertEquals(1, db.getCollection("firstCollection").count(BasicDBObject().append("hello", "world")))
-        Assert.assertEquals(1, db.getCollection("firstCollection").count(BasicDBObject().append("answer", 42)))
+        org.junit.Assert.assertTrue(db.listCollectionNames().toList().contains("firstCollection"))
+        org.junit.Assert.assertEquals(2, db.getCollection("firstCollection").count())
+        org.junit.Assert.assertEquals(1, db.getCollection("firstCollection").count(BasicDBObject().append("hello", "world")))
+        org.junit.Assert.assertEquals(1, db.getCollection("firstCollection").count(BasicDBObject().append("answer", 42)))
 
     }
 }

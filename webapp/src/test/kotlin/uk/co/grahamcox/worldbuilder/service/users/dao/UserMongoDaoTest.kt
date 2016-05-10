@@ -4,9 +4,9 @@ import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import uk.co.grahamcox.worldbuilder.dao.embedded.EmbeddedMongoRule
-import uk.co.grahamcox.worldbuilder.dao.embedded.SeedCollection
-import uk.co.grahamcox.worldbuilder.dao.embedded.StartMongoDb
+import uk.co.grahamcox.dao.embedded.mongodb.EmbeddedMongoRule
+import uk.co.grahamcox.dao.embedded.mongodb.SeedCollection
+import uk.co.grahamcox.dao.embedded.mongodb.StartMongoDb
 import uk.co.grahamcox.worldbuilder.service.Identity
 import uk.co.grahamcox.worldbuilder.service.ResourceNotFoundException
 import uk.co.grahamcox.worldbuilder.service.StaleResourceException
@@ -28,7 +28,7 @@ class UserMongoDaoTest {
     /** The Embedded MongoDB */
     @Rule
     @JvmField
-    val embeddedMongoDb = EmbeddedMongoRule()
+    val embeddedMongoDb = uk.co.grahamcox.dao.embedded.mongodb.EmbeddedMongoRule()
 
     /** The test subject */
     lateinit var testSubject: UserDao
@@ -46,7 +46,7 @@ class UserMongoDaoTest {
      * Test loading a user with an ID that doesn't exist
      */
     @Test(expected = ResourceNotFoundException::class)
-    @StartMongoDb
+    @uk.co.grahamcox.dao.embedded.mongodb.StartMongoDb
     fun testGetUnknownUserById() {
         testSubject.getById(UserId("abcdef"))
     }
@@ -55,8 +55,8 @@ class UserMongoDaoTest {
      * Test loading a user with an ID that does exist
      */
     @Test
-    @StartMongoDb(arrayOf(
-            SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
+    @uk.co.grahamcox.dao.embedded.mongodb.StartMongoDb(arrayOf(
+            uk.co.grahamcox.dao.embedded.mongodb.SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
     ))
     fun testGetKnownUserById() {
         val user = testSubject.getById(UserId("abcdef"))
@@ -77,8 +77,8 @@ class UserMongoDaoTest {
      * Test deleting a user with an ID that does exist
      */
     @Test
-    @StartMongoDb(arrayOf(
-            SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
+    @uk.co.grahamcox.dao.embedded.mongodb.StartMongoDb(arrayOf(
+            uk.co.grahamcox.dao.embedded.mongodb.SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
     ))
     fun testDeleteUser() {
         val user = testSubject.getById(UserId("abcdef"))
@@ -96,7 +96,7 @@ class UserMongoDaoTest {
      * Test loading a user with an ID that doesn't exist
      */
     @Test(expected = ResourceNotFoundException::class)
-    @StartMongoDb
+    @uk.co.grahamcox.dao.embedded.mongodb.StartMongoDb
     fun testDeleteUnknownUser() {
         testSubject.delete(Identity(
                 id = UserId("abcdef"),
@@ -109,8 +109,8 @@ class UserMongoDaoTest {
      * Test loading a user that has been modified since it was last loaded
      */
     @Test(expected = StaleResourceException::class)
-    @StartMongoDb(arrayOf(
-            SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
+    @uk.co.grahamcox.dao.embedded.mongodb.StartMongoDb(arrayOf(
+            uk.co.grahamcox.dao.embedded.mongodb.SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
     ))
     fun testDeleteStaleUser() {
         testSubject.delete(Identity(
@@ -124,7 +124,7 @@ class UserMongoDaoTest {
      * Test creating a new user
      */
     @Test
-    @StartMongoDb
+    @uk.co.grahamcox.dao.embedded.mongodb.StartMongoDb
     fun testCreateUser() {
         val saved = testSubject.save(User(
                 identity = null,
@@ -145,8 +145,8 @@ class UserMongoDaoTest {
      * Test updating an existing user
      */
     @Test
-    @StartMongoDb(arrayOf(
-            SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
+    @uk.co.grahamcox.dao.embedded.mongodb.StartMongoDb(arrayOf(
+            uk.co.grahamcox.dao.embedded.mongodb.SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
     ))
     fun testUpdateUser() {
         val existing = testSubject.getById(UserId("abcdef"))
@@ -172,8 +172,8 @@ class UserMongoDaoTest {
      * Test updating an existing user with an invalid updated date
      */
     @Test(expected = StaleResourceException::class)
-    @StartMongoDb(arrayOf(
-            SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
+    @uk.co.grahamcox.dao.embedded.mongodb.StartMongoDb(arrayOf(
+            uk.co.grahamcox.dao.embedded.mongodb.SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
     ))
     fun testUpdateStaleUser() {
         testSubject.save(User(
@@ -193,8 +193,8 @@ class UserMongoDaoTest {
      * Test updating an existing user with an invalid updated date
      */
     @Test(expected = ResourceNotFoundException::class)
-    @StartMongoDb(arrayOf(
-            SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
+    @uk.co.grahamcox.dao.embedded.mongodb.StartMongoDb(arrayOf(
+            uk.co.grahamcox.dao.embedded.mongodb.SeedCollection(collection = USERS_COLLECTION, source = "/uk/co/grahamcox/worldbuilder/service/users/dao/users.json")
     ))
     fun testUpdateUnknownUser() {
         testSubject.save(User(

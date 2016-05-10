@@ -20,6 +20,7 @@
     </prerequisites>
     <modules>
         <module>webapp</module>
+        <module>embeddedmongo</module>
     </modules>
     <scm>
         <connection>scm:git:https://github.com/sazzer/worldbuilder.git</connection>
@@ -148,6 +149,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${version.slf4j}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${version.spring}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>

@@ -1,13 +1,14 @@
-package uk.co.grahamcox.worldbuilder.dao.embedded
+package uk.co.grahamcox.dao.embedded.mongodb
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.ClassPathResource
-import uk.co.grahamcox.worldbuilder.dao.embedded.transformers.DateTimeTransformer
+import uk.co.grahamcox.dao.embedded.mongodb.transformers.DateTimeTransformer
 import java.io.FileNotFoundException
 
-
-
+/**
+ * Mechanism to load seed data and transform it into a suitable set of values in store in a MongoDB store
+ */
 object SeedDataLoader {
     /** The logger to use */
     private val LOG = LoggerFactory.getLogger(SeedDataLoader::class.java)
@@ -46,8 +47,8 @@ object SeedDataLoader {
      */
     private fun process(input: List<*>) : List<*> = input.map { v ->
         when (v) {
-            is List<*> -> process(v)
-            is Map<*, *> -> process(v)
+            is List<*> -> SeedDataLoader.process(v)
+            is Map<*, *> -> SeedDataLoader.process(v)
             else -> v
         }
     }

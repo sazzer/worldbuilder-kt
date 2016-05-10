@@ -1,9 +1,8 @@
-package uk.co.grahamcox.worldbuilder.dao.embedded.transformers
+package uk.co.grahamcox.dao.embedded.mongodb.transformers
 
 import org.slf4j.LoggerFactory
 import java.time.Clock
 import java.time.Duration
-import java.time.Period
 import java.time.ZonedDateTime
 import java.util.*
 
@@ -19,19 +18,19 @@ class DateTimeTransformer : Transformer {
         private val PERIOD_REGEX = "P(?:T\\d+[HMS]|\\d+[YMD])+"
 
         /** Regex to match a Period Offset */
-        private val PERIOD_OFFSET_REGEX = "(?:\\s*(?<plusMinus>[+-])\\s*(?<period>${PERIOD_REGEX}))"
+        private val PERIOD_OFFSET_REGEX = "(?:\\s*(?<plusMinus>[+-])\\s*(?<period>${DateTimeTransformer.Companion.PERIOD_REGEX}))"
 
         /** Regex to match a number of periods */
-        private val PERIODS_REGEX = "(?<periods>${PERIOD_OFFSET_REGEX}*)"
+        private val PERIODS_REGEX = "(?<periods>${DateTimeTransformer.Companion.PERIOD_OFFSET_REGEX}*)"
 
         /** Regex to match a time value */
         private val TIME_REGEX = "(?<hour>\\d\\d)\\:(?<minute>\\d\\d)(?:\\:(?<second>\\d\\d))?"
 
         /** Regex to match an exact time setting */
-        private val EXACT_TIME_REGEX = "(?:\\s*@\\s*${TIME_REGEX})?"
+        private val EXACT_TIME_REGEX = "(?:\\s*@\\s*${DateTimeTransformer.Companion.TIME_REGEX})?"
 
         /** Regex to match a relative time string */
-        private val RELATIVE_REGEX = "^now${EXACT_TIME_REGEX}${PERIODS_REGEX}$".toPattern()
+        private val RELATIVE_REGEX = "^now${DateTimeTransformer.Companion.EXACT_TIME_REGEX}${DateTimeTransformer.Companion.PERIODS_REGEX}$".toPattern()
 
         /** The clock to use */
         private val CLOCK = Clock.systemUTC()
@@ -48,17 +47,17 @@ class DateTimeTransformer : Transformer {
     override fun transform(input: Any?) = when(input) {
         null -> null
         is String -> {
-            val match = RELATIVE_REGEX.matcher(input)
+            val match = DateTimeTransformer.Companion.RELATIVE_REGEX.matcher(input)
             val processedTime = if (match.matches()) {
-                LOG.debug("Input string {} is being processed as a relative time string: {}", input, match)
-                val now = ZonedDateTime.now(CLOCK)
+                DateTimeTransformer.Companion.LOG.debug("Input string {} is being processed as a relative time string: {}", input, match)
+                val now = ZonedDateTime.now(DateTimeTransformer.Companion.CLOCK)
 
                 val hourValue = match.group("hour")
                 val minuteValue = match.group("minute")
                 val secondValue = match.group("second")?:"00"
 
                 val offset = if (hourValue != null) {
-                    LOG.debug("Setting exact time {}:{}:{}", hourValue, minuteValue, secondValue)
+                    DateTimeTransformer.Companion.LOG.debug("Setting exact time {}:{}:{}", hourValue, minuteValue, secondValue)
                     now
                         .withHour(Integer.parseInt(hourValue))
                         .withMinute(Integer.parseInt(minuteValue))
@@ -70,7 +69,7 @@ class DateTimeTransformer : Transformer {
                 val periodsValue = match.group("periods")
 
                 val result = if (periodsValue != null) {
-                    LOG.debug("Adjusting time by periods {}", periodsValue)
+                    DateTimeTransformer.Companion.LOG.debug("Adjusting time by periods {}", periodsValue)
                     val combinedPeriod = buildCombinedPeriod(periodsValue)
 
                     offset.plus(combinedPeriod)
@@ -80,11 +79,11 @@ class DateTimeTransformer : Transformer {
 
                 result
             } else {
-                LOG.debug("Input string {} is being processed as an absolute time string", input)
+                DateTimeTransformer.Companion.LOG.debug("Input string {} is being processed as an absolute time string", input)
                 ZonedDateTime.parse(input)
             }
 
-            LOG.debug("Relative time from {} is {}", input, processedTime)
+            DateTimeTransformer.Companion.LOG.debug("Relative time from {} is {}", input, processedTime)
             Date.from(processedTime.toInstant())
         }
         else -> input
@@ -96,13 +95,13 @@ class DateTimeTransformer : Transformer {
      * @return the combined period
      */
     fun buildCombinedPeriod(periodsValue: String): Duration {
-        val periodMatch = PERIOD_OFFSET_REGEX.toPattern().matcher(periodsValue)
+        val periodMatch = DateTimeTransformer.Companion.PERIOD_OFFSET_REGEX.toPattern().matcher(periodsValue)
         var result = Duration.ZERO
 
         while (periodMatch.find()) {
             val plusMinus = periodMatch.group("plusMinus")
             val periodString = periodMatch.group("period")
-            LOG.debug("Performing {} {} {}", result, plusMinus, periodString)
+            DateTimeTransformer.Companion.LOG.debug("Performing {} {} {}", result, plusMinus, periodString)
 
             val period = Duration.parse(periodString)
             result = when (plusMinus) {

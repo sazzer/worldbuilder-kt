@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.dao.embedded
+package uk.co.grahamcox.dao.embedded.mongodb
 
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoDatabase

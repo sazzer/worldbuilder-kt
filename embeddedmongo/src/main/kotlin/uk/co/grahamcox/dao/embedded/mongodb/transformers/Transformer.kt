@@ -1,4 +1,4 @@
-package uk.co.grahamcox.worldbuilder.dao.embedded.transformers
+package uk.co.grahamcox.dao.embedded.mongodb.transformers
 
 /**
  * Interface describing a transformer between types
