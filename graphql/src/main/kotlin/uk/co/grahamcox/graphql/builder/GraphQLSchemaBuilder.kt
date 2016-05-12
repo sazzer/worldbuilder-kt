@@ -129,7 +129,7 @@ class GraphQLSchemaBuilder(private val registry: GraphQLRegistrar) {
                 .name(name)
                 .description(builder.description)
 
-        builder.members.forEach { enumBuilder.value(it) }
+        builder.members.forEach { enumBuilder.value(it.key, it.value) }
 
         LOG.debug("Built GraphQL Enum for name {}", name)
         return enumBuilder.build()

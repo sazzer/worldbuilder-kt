@@ -7,15 +7,23 @@ import kotlin.reflect.KClass
  */
 class GraphQLEnumBuilder : GraphQLBuilderBase<GraphQLEnumBuilder>() {
     /** The members of the enum */
-    val members = mutableSetOf<String>()
+    val members = mutableMapOf<String, Any>()
 
     /**
      * Add a new member to the enum
      * @param member The member to add
      * @return this, for chaining
      */
-    fun withMember(member: String) : GraphQLEnumBuilder {
-        members.add(member)
+    fun withMember(member: String) = withMember(member, member)
+
+    /**
+     * Add a new member to the enum
+     * @param member The member to add
+     * @param value The value to use for the member
+     * @return this, for chaining
+     */
+    fun withMember(member: String, value: Any) : GraphQLEnumBuilder {
+        members.put(member, value)
         return this
     }
 
@@ -42,9 +50,7 @@ class GraphQLEnumBuilder : GraphQLBuilderBase<GraphQLEnumBuilder>() {
      * @return this, for chaining
      */
     fun withMembers(enumClass: KClass<*>) =
-            withMembers(
-                    enumClass.java.enumConstants
-                            .map { it as Enum<*> }
-                            .map { it.name }
-            )
+            enumClass.java.enumConstants
+                    .map { it as Enum<*> }
+                    .forEach { withMember(it.name, it) }
 }

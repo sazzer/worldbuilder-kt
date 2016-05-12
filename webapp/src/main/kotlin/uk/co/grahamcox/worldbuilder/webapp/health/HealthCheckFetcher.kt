@@ -16,7 +16,7 @@ class HealthCheckFetcher : DataFetcher {
         return listOf(
                 HealthCheckModel(
                         name = "Simple",
-                        status = HealthCheckStatus.OK.name,
+                        status = HealthCheckStatus.OK,
                         message = null
                 )
         )

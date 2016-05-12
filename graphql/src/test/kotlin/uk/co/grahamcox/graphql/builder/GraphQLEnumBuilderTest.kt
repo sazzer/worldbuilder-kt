@@ -21,7 +21,7 @@ class GraphQLEnumBuilderTest {
         val builder = uk.co.grahamcox.graphql.builder.GraphQLEnumBuilder()
         builder.withMembers(TestEnum::class)
 
-        Assert.assertEquals(setOf("RED", "GREEN", "BLUE"), builder.members)
+        Assert.assertEquals(mapOf("RED" to TestEnum.RED, "GREEN" to TestEnum.GREEN, "BLUE" to TestEnum.BLUE), builder.members)
     }
 
     /**
@@ -34,7 +34,7 @@ class GraphQLEnumBuilderTest {
                 .withMember("GREEN")
                 .withMember("BLUE")
 
-        Assert.assertEquals(setOf("RED", "GREEN", "BLUE"), builder.members)
+        Assert.assertEquals(mapOf("RED" to "RED", "GREEN" to "GREEN", "BLUE" to "BLUE"), builder.members)
     }
 
     /**
@@ -45,7 +45,7 @@ class GraphQLEnumBuilderTest {
         val builder = uk.co.grahamcox.graphql.builder.GraphQLEnumBuilder()
                 .withMembers("RED", "GREEN", "BLUE")
 
-        Assert.assertEquals(setOf("RED", "GREEN", "BLUE"), builder.members)
+        Assert.assertEquals(mapOf("RED" to "RED", "GREEN" to "GREEN", "BLUE" to "BLUE"), builder.members)
     }
 
     /**
@@ -56,7 +56,7 @@ class GraphQLEnumBuilderTest {
         val builder = uk.co.grahamcox.graphql.builder.GraphQLEnumBuilder()
                 .withMembers(setOf("RED", "GREEN", "BLUE"))
 
-        Assert.assertEquals(setOf("RED", "GREEN", "BLUE"), builder.members)
+        Assert.assertEquals(mapOf("RED" to "RED", "GREEN" to "GREEN", "BLUE" to "BLUE"), builder.members)
     }
 
     /**
@@ -69,6 +69,6 @@ class GraphQLEnumBuilderTest {
                 .withMembers(setOf("RED", "GREEN", "BLUE"))
 
         Assert.assertEquals("Hello", builder.description)
-        Assert.assertEquals(setOf("RED", "GREEN", "BLUE"), builder.members)
+        Assert.assertEquals(mapOf("RED" to "RED", "GREEN" to "GREEN", "BLUE" to "BLUE"), builder.members)
     }
 }

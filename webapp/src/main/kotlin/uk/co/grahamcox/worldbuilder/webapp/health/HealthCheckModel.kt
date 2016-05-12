@@ -19,5 +19,5 @@ enum class HealthCheckStatus {
  * @property message A message from the health check
  */
 data class HealthCheckModel(val name: String,
-                            val status: String,
+                            val status: HealthCheckStatus,
                             val message: String?)
