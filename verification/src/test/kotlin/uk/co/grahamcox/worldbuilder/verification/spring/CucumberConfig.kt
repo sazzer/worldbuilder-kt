@@ -22,7 +22,8 @@ import java.net.URI
  */
 @Configuration
 @Import(
-        HealthCheckConfig::class
+        HealthCheckConfig::class,
+        UserConfig::class
 )
 open class CucumberConfig {
 
@@ -65,8 +66,8 @@ open class CucumberConfig {
      */
     @Autowired
     @Bean
-    open fun graphQlClient(restTemplate: RestTemplate): GraphQLClient {
+    open fun graphQlClient(restTemplate: RestTemplate, objectMapper: ObjectMapper): GraphQLClient {
         val url = URI(System.getProperty("url.worldbuilder") + "/api/graphql")
-        return GraphQLClient(restTemplate, url)
+        return GraphQLClient(restTemplate, objectMapper, url)
     }
 }

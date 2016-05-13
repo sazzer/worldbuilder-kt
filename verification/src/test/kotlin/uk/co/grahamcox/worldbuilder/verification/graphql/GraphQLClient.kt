@@ -9,9 +9,11 @@ import java.net.URI
 /**
  * The mechanism by which GraphQL calls will be sent to the server
  * @property restTemplate The REST Template to make the calls with
+ * @property objectMapper The Object Mapper to use
  * @property graphQlUrl The URL to call
  */
 class GraphQLClient(private val restTemplate: RestTemplate,
+                    private val objectMapper: ObjectMapper,
                     private val graphQlUrl: URI) {
     companion object {
         /** The logger to use */
@@ -21,15 +23,21 @@ class GraphQLClient(private val restTemplate: RestTemplate,
     /**
      * Actually perform the query provided and get the response back
      * @param query The query to perform
+     * @param variables The variables to pass to the query
      * @param responseClass The class to use for the response
      */
-    fun performQuery(query: String): Map<String, Any?> {
+    fun performQuery(query: String, variables: Any = mapOf<String, String>()): Map<String, Any?> {
         LOG.debug("Sending query {} to {}", query, graphQlUrl)
 
+        val serializedVariables = objectMapper.writeValueAsString(variables)
+
         val headers = HttpHeaders()
-        headers.contentType = MediaType.parseMediaType("application/graphql")
+        headers.contentType = MediaType.parseMediaType("application/json")
         headers.accept = listOf(MediaType.APPLICATION_JSON)
-        val request = RequestEntity<String>(query, headers, HttpMethod.POST, graphQlUrl)
+        val request = RequestEntity<Map<*, *>>(mapOf(
+                "query" to query,
+                "variables" to serializedVariables
+        ), headers, HttpMethod.POST, graphQlUrl)
 
         val response = restTemplate.exchange(request, GraphQLResponse::class.java)
         LOG.debug("Sent request {} and got response {}", request, response)
