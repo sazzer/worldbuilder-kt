@@ -7,6 +7,7 @@ import org.junit.Assert
 import org.springframework.beans.factory.annotation.Autowired
 import uk.co.grahamcox.worldbuilder.verification.DataTableParser
 import uk.co.grahamcox.worldbuilder.verification.ModelPopulator
+import uk.co.grahamcox.worldbuilder.verification.Result
 import uk.co.grahamcox.worldbuilder.verification.users.NewUserModel
 import uk.co.grahamcox.worldbuilder.verification.users.UserFacade
 
@@ -37,7 +38,8 @@ class UserManagementSteps {
      */
     @Then("^the user was created successfully$")
     fun userCreatedSuccessfully() {
-        Assert.assertTrue(userFacade.userWasCreatedSuccessfully())
+        Assert.assertNotNull(userFacade.createdUserDetails)
+        Assert.assertTrue("Expected user creation to have succeeded", userFacade.createdUserDetails is Result.Success)
     }
 
     /**
@@ -45,14 +47,37 @@ class UserManagementSteps {
      */
     @Then("^the created user details are:$")
     fun checkCreatedUser(userDetails: DataTable) {
+        val parsedUserDetails = DataTableParser.parseSingleTall(userDetails)
+        Assert.assertNotNull(userFacade.createdUserDetails)
+        Assert.assertTrue("Expected user creation to have failed", userFacade.createdUserDetails is Result.Success)
 
+        val createUserResult = userFacade.createdUserDetails as Result.Success
+        Assert.assertEquals(parsedUserDetails, createUserResult.value)
     }
 
     /**
-     * Assert that the user creation failed
+     * Assert that the user creation failed with some global errors
      */
-    @Then("^user creation failed with the error \"(.*)\"$")
-    fun userCreationFailed(error: String) {
+    @Then("^user creation failed with the errors:$")
+    fun userCreationFailedGlobalErrors(errors: List<String>) {
+        Assert.assertNotNull(userFacade.createdUserDetails)
+        Assert.assertTrue("Expected user creation to have failed", userFacade.createdUserDetails is Result.Failure)
 
+        val createUserResult = userFacade.createdUserDetails as Result.Failure
+        Assert.assertTrue("No Global errors occurred", createUserResult.value.globalErrors.isNotEmpty())
+    }
+
+    /**
+     * Assert that the user creation failed with some global errors
+     */
+    @Then("^user creation failed with the field errors:$")
+    fun userCreationFailedFieldErrors(errors: DataTable) {
+        val errorDetails = DataTableParser.parseSingleTall(errors)
+
+        Assert.assertNotNull(userFacade.createdUserDetails)
+        Assert.assertTrue("Expected user creation to have failed", userFacade.createdUserDetails is Result.Failure)
+
+        val createUserResult = userFacade.createdUserDetails as Result.Failure
+        Assert.assertTrue("No Field errors occurred", createUserResult.value.fieldErrors.isNotEmpty())
     }
 }

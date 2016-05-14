@@ -1,12 +1,14 @@
 package uk.co.grahamcox.worldbuilder.verification
 
+import org.apache.commons.jxpath.JXPathContext
 import org.slf4j.LoggerFactory
 import java.lang.reflect.Field
 
 /**
  * Mechanism by which we can populate objects from data table entries
+ * @property paths Map of the JXPaths to use for populating the object
  */
-class ModelPopulator {
+class ModelPopulator(private val paths: Map<String, String>) {
     companion object {
         /** The logger to use */
         val LOG = LoggerFactory.getLogger(ModelPopulator::class.java)
@@ -20,35 +22,22 @@ class ModelPopulator {
      */
     fun <T> populate(data: List<DataTableEntry>, target: Class<T>) : T {
         val result: T = target.newInstance()
+        val jxpath = JXPathContext.newContext(result)
 
-        data.map { Pair(it.key, it.value) }
-            .map { Pair(findField(target, it.first), it.second) }
-            .filter { it.first != null }
-            .forEach {
-                it.first!!.isAccessible = true
-                it.first!!.set(result, it.second)
-            }
+        data.filter {
+                    if (!paths.containsKey(it.key)) {
+                        LOG.warn("Unknown field {} for target type {}", it.key, target)
+                    }
+                    paths.containsKey(it.key)
+                }
+                .map { Pair(paths[it.key]!!, it.value) }
+                .forEach {
+                    LOG.debug("Populating path {} with value {}", it.first, it.second)
+                    jxpath.setValue(it.first, it.second)
+                }
 
         LOG.debug("Parsed data table {} into result {}", data, result)
         return result
     }
 
-    /**
-     * Find the field that has the given name, but when the name isn't in the exact same form.
-     * For now this strips out all whitespace from the name and then does a comparison ignoring case
-     * @param target The class to find the field in
-     * @param name The name to look for
-     * @return the field if we found one. Null if not
-     */
-    private fun findField(target: Class<*>, name: String): Field? {
-        val matchingName = name.replace(" ", "").toLowerCase()
-        val result = target.declaredFields.filter { it.name.toLowerCase().equals(matchingName) }
-                .firstOrNull()
-
-        if (result == null) {
-            LOG.warn("Failed to find a suitable field on {} for name {}", target, name)
-        }
-
-        return result
-    }
 }

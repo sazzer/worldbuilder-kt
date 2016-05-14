@@ -21,10 +21,12 @@ Feature: Create User
       When I create a user with the details:
         | Name  | Graham                 |
         | Email | graham@grahamcox.co.uk |
-      Then user creation failed with the error "DUPLICATE_USER"
+      Then user creation failed with the errors:
+        | DUPLICATE_USER |
 
   Scenario: Create an user with an invalid email
     When I create a user with the details:
       | Name  | Graham |
       | Email | graham |
-    Then user creation failed with the error "INVALID_EMAIL"
+    Then user creation failed with the field errors:
+      | Email | INVALID_EMAIL |

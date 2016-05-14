@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.co.grahamcox.worldbuilder.verification.ModelPopulator
 import uk.co.grahamcox.worldbuilder.verification.graphql.GraphQLClient
+import uk.co.grahamcox.worldbuilder.verification.users.UserCreator
 import uk.co.grahamcox.worldbuilder.verification.users.UserFacade
 
 /**
@@ -17,13 +18,23 @@ open class UserConfig {
      * Populator to populate new user objects
      */
     @Bean
-    open fun newUserPopulator() = ModelPopulator()
+    open fun newUserPopulator() = ModelPopulator(mapOf(
+            "Name" to "name",
+            "Email" to "email"
+    ))
+
+    /**
+     * Mechanism for creating users
+     */
+    @Autowired
+    @Bean
+    open fun userCreator(graphQLClient: GraphQLClient, objectMapper: ObjectMapper) =
+            UserCreator(graphQLClient, objectMapper)
 
     /**
      * Facade for working with users
      */
     @Autowired
     @Bean
-    open fun userFacade(graphQLClient: GraphQLClient, objectMapper: ObjectMapper) =
-            UserFacade(graphQLClient, objectMapper)
+    open fun userFacade(userCreator: UserCreator) = UserFacade(userCreator)
 }
