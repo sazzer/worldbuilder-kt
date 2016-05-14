@@ -1,7 +1,8 @@
-package uk.co.grahamcox.worldbuilder.verification
+package uk.co.grahamcox.worldbuilder.verification.populator
 
 import org.apache.commons.jxpath.JXPathContext
 import org.slf4j.LoggerFactory
+import uk.co.grahamcox.worldbuilder.verification.DataTableEntry
 import java.lang.reflect.Field
 
 /**

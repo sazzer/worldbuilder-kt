@@ -6,7 +6,7 @@ import cucumber.api.java.en.When
 import org.junit.Assert
 import org.springframework.beans.factory.annotation.Autowired
 import uk.co.grahamcox.worldbuilder.verification.DataTableParser
-import uk.co.grahamcox.worldbuilder.verification.ModelPopulator
+import uk.co.grahamcox.worldbuilder.verification.populator.ModelPopulator
 import uk.co.grahamcox.worldbuilder.verification.Result
 import uk.co.grahamcox.worldbuilder.verification.users.NewUserModel
 import uk.co.grahamcox.worldbuilder.verification.users.UserFacade

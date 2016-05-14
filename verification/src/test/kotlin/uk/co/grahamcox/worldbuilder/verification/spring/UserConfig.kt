@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import uk.co.grahamcox.worldbuilder.verification.ModelPopulator
+import uk.co.grahamcox.worldbuilder.verification.populator.ModelPopulator
 import uk.co.grahamcox.worldbuilder.verification.graphql.GraphQLClient
 import uk.co.grahamcox.worldbuilder.verification.users.UserCreator
 import uk.co.grahamcox.worldbuilder.verification.users.UserFacade
