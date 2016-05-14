@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import uk.co.grahamcox.worldbuilder.verification.DataTableParser
 import uk.co.grahamcox.worldbuilder.verification.populator.ModelPopulator
 import uk.co.grahamcox.worldbuilder.verification.Result
+import uk.co.grahamcox.worldbuilder.verification.comparitor.SingleModelComparator
 import uk.co.grahamcox.worldbuilder.verification.users.NewUserModel
 import uk.co.grahamcox.worldbuilder.verification.users.UserFacade
 
@@ -18,6 +19,10 @@ class UserManagementSteps {
     /** Mechanism to populate New User details from a data table */
     @Autowired
     private lateinit var newUserPopulator: ModelPopulator
+
+    /** Mechanism to compare a user to the expected values */
+    @Autowired
+    private lateinit var userDetailsComparator: SingleModelComparator
 
     /** Mechanism to work with user details */
     @Autowired
@@ -52,7 +57,7 @@ class UserManagementSteps {
         Assert.assertTrue("Expected user creation to have failed", userFacade.createdUserDetails is Result.Success)
 
         val createUserResult = userFacade.createdUserDetails as Result.Success
-        Assert.assertEquals(parsedUserDetails, createUserResult.value)
+        userDetailsComparator.compare(parsedUserDetails, createUserResult.value)
     }
 
     /**

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.co.grahamcox.worldbuilder.verification.comparitor.SingleModelComparator
 import uk.co.grahamcox.worldbuilder.verification.populator.ModelPopulator
 import uk.co.grahamcox.worldbuilder.verification.graphql.GraphQLClient
 import uk.co.grahamcox.worldbuilder.verification.users.UserCreator
@@ -21,6 +22,19 @@ open class UserConfig {
     open fun newUserPopulator() = ModelPopulator(mapOf(
             "Name" to "name",
             "Email" to "email"
+    ))
+
+    /**
+     * Comparator for user details objects
+     */
+    @Bean
+    open fun userDetailsComparator() = SingleModelComparator(mapOf(
+            "Name" to "name",
+            "Email" to "email",
+            "Created" to "created",
+            "Updated" to "updated",
+            "Enabled" to "enabled",
+            "Verified" to "verified"
     ))
 
     /**
