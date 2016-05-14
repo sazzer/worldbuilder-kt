@@ -21,13 +21,16 @@ class SingleModelComparator(private val paths: Map<String, String>) {
         /** The logger to use */
         val LOG = LoggerFactory.getLogger(SingleModelComparator::class.java)
     }
+
     /**
      * Compare the expected fields to the model object to see what the matches are
      * @param expected The expected fields
      * @param actual The actual object to compare with
+     * @return the details of any matches that we didn't make
      */
-    fun compare(expected: Collection<DataTableEntry>, actual: Any) {
+    fun compare(expected: Collection<DataTableEntry>, actual: Any): List<MissedMatch> {
         val jxpath = JXPathContext.newContext(actual)
+        val defaultComparator = SimpleFieldComparator()
 
         val validEntries = expected.filter {
             if (!paths.containsKey(it.key)) {
@@ -39,7 +42,7 @@ class SingleModelComparator(private val paths: Map<String, String>) {
         val missedEntries = validEntries.map {
             val path = paths[it.key]
             val value = jxpath.getValue(path)
-            val matches = it.value.equals(value)
+            val matches = defaultComparator.compare(it.value, value)
 
             if (matches) {
                 null
@@ -49,5 +52,6 @@ class SingleModelComparator(private val paths: Map<String, String>) {
         }.filterNotNull()
 
         LOG.info("Missed matches: {}", missedEntries)
+        return missedEntries
     }
 }

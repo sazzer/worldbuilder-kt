@@ -9,8 +9,6 @@ Feature: Create User
     And the created user details are:
       | Name     | Graham                 |
       | Email    | graham@grahamcox.co.uk |
-      | Created  | now within PT0S        |
-      | Updated  | now within PT0S        |
       | Enabled  | True                   |
       | Verified | False                  |
 

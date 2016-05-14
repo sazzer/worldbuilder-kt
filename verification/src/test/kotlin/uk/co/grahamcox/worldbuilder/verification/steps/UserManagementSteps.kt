@@ -57,7 +57,10 @@ class UserManagementSteps {
         Assert.assertTrue("Expected user creation to have failed", userFacade.createdUserDetails is Result.Success)
 
         val createUserResult = userFacade.createdUserDetails as Result.Success
-        userDetailsComparator.compare(parsedUserDetails, createUserResult.value)
+        val missedMatches = userDetailsComparator.compare(parsedUserDetails, createUserResult.value)
+        if (missedMatches.isNotEmpty()) {
+            Assert.fail("Failed to match entries: ${missedMatches}");
+        }
     }
 
     /**
