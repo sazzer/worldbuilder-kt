@@ -1,4 +1,3 @@
-@wip
 Feature: Create User
 
   Scenario: Create a user successfully
@@ -14,18 +13,17 @@ Feature: Create User
       | Created  | between now - PT2S and now |
       | Updated  | between now - PT2S and now |
 
-    @ignore
-    Scenario: Create an user with a duplicate email
-      Given a user exists with the details:
-        | Name  | Graham                 |
-        | Email | graham@grahamcox.co.uk |
-      When I create a user with the details:
-        | Name  | Graham                 |
-        | Email | graham@grahamcox.co.uk |
-      Then user creation failed with the errors:
-        | DUPLICATE_USER |
-
   @ignore
+  Scenario: Create an user with a duplicate email
+    Given a user exists with the details:
+      | Name  | Graham                 |
+      | Email | graham@grahamcox.co.uk |
+    When I create a user with the details:
+      | Name  | Graham                 |
+      | Email | graham@grahamcox.co.uk |
+    Then user creation failed with the errors:
+      | DUPLICATE_USER |
+
   Scenario: Create an user with an invalid email
     When I create a user with the details:
       | Name  | Graham |

@@ -4,9 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import uk.co.grahamcox.worldbuilder.verification.DataTableEntry
+import uk.co.grahamcox.worldbuilder.verification.FieldError
+import uk.co.grahamcox.worldbuilder.verification.comparitor.CollectionComparator
 import uk.co.grahamcox.worldbuilder.verification.comparitor.DateTimeComparator
 import uk.co.grahamcox.worldbuilder.verification.comparitor.FieldPath
 import uk.co.grahamcox.worldbuilder.verification.comparitor.SingleModelComparator
+import uk.co.grahamcox.worldbuilder.verification.errors.FieldErrorComparison
 import uk.co.grahamcox.worldbuilder.verification.populator.ModelPopulator
 import uk.co.grahamcox.worldbuilder.verification.graphql.GraphQLClient
 import uk.co.grahamcox.worldbuilder.verification.users.UserCreator
@@ -42,6 +46,15 @@ open class UserConfig {
             "Created" to FieldPath("created", DateTimeComparator(clock)),
             "Updated" to FieldPath("updated", DateTimeComparator(clock))
     ))
+
+    /**
+     * Comparator for matching up field errors
+     */
+    @Bean
+    open fun fieldErrorComparator() = CollectionComparator<DataTableEntry, FieldError>(FieldErrorComparison(mapOf(
+            "Email" to "email",
+            "Name" to "name"
+    )))
 
     /**
      * Mechanism for creating users

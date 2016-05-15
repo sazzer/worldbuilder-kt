@@ -5,9 +5,12 @@ import cucumber.api.java.en.Then
 import cucumber.api.java.en.When
 import org.junit.Assert
 import org.springframework.beans.factory.annotation.Autowired
+import uk.co.grahamcox.worldbuilder.verification.DataTableEntry
 import uk.co.grahamcox.worldbuilder.verification.DataTableParser
+import uk.co.grahamcox.worldbuilder.verification.FieldError
 import uk.co.grahamcox.worldbuilder.verification.populator.ModelPopulator
 import uk.co.grahamcox.worldbuilder.verification.Result
+import uk.co.grahamcox.worldbuilder.verification.comparitor.CollectionComparator
 import uk.co.grahamcox.worldbuilder.verification.comparitor.SingleModelComparator
 import uk.co.grahamcox.worldbuilder.verification.users.NewUserModel
 import uk.co.grahamcox.worldbuilder.verification.users.UserFacade
@@ -23,6 +26,10 @@ class UserManagementSteps {
     /** Mechanism to compare a user to the expected values */
     @Autowired
     private lateinit var userDetailsComparator: SingleModelComparator
+
+    /** Mechanism to match up a list of field errors to a expected list */
+    @Autowired
+    private lateinit var fieldErrorComparator: CollectionComparator<DataTableEntry, FieldError>
 
     /** Mechanism to work with user details */
     @Autowired
@@ -87,5 +94,10 @@ class UserManagementSteps {
 
         val createUserResult = userFacade.createdUserDetails as Result.Failure
         Assert.assertTrue("No Field errors occurred", createUserResult.value.fieldErrors.isNotEmpty())
+
+        val fieldErrorsMatchResult = fieldErrorComparator.compare(errorDetails, createUserResult.value.fieldErrors)
+        if (!fieldErrorsMatchResult.allExpectedMatch) {
+            Assert.fail("Not all expected field errors occurred: ${fieldErrorsMatchResult}")
+        }
     }
 }
