@@ -11,11 +11,12 @@ import org.slf4j.LoggerFactory
  * @property handler The handler to use
  * @property inputClass The input class to convert the input values to
  * @property objectMapper The name under which to put the output value into
- * @property outputName The object mapper to use to convert the input values
+ * @property validators The validators to use for validating the request
  */
 class MutationFetcher<IN, OUT>(private val handler: MutationHandler<IN, OUT>,
                                private val inputClass: Class<IN>,
-                               private val objectMapper: ObjectMapper) : DataFetcher {
+                               private val objectMapper: ObjectMapper,
+                               private val validators: Collection<RequestValidator<IN>>) : DataFetcher {
     companion object {
         /** The logger to use */
         private val LOG = LoggerFactory.getLogger(MutationFetcher::class.java)
@@ -32,6 +33,10 @@ class MutationFetcher<IN, OUT>(private val handler: MutationHandler<IN, OUT>,
         fun process(input: IN, environment: DataFetchingEnvironment) : OUT?
     }
 
+    /**
+     * Actually perform the mutation. This does the work of converting the input to the correct type, validatign it and
+     * then delegates to the handler to do the actual processing
+     */
     override fun get(environment: DataFetchingEnvironment): Any? {
         val input = environment.arguments["input"]
 
@@ -41,10 +46,20 @@ class MutationFetcher<IN, OUT>(private val handler: MutationHandler<IN, OUT>,
             else -> {
                 LOG.debug("Performing mutation {} with input {}", environment, input)
                 val parsedInput = objectMapper.convertValue(input, inputClass)
-                val result = try {
-                    handler.process(parsedInput, environment)
-                } catch (e: FetcherException) {
-                    ErrorResponseModel(globalErrors = e.globalErrors, fieldErrors = e.fieldErrors)
+                val validationErrors = validators.flatMap { v -> v.validate(parsedInput) }
+                val result = if (validationErrors.isNotEmpty()) {
+                    val fieldErrors = validationErrors.filter { e -> e is FieldError }
+                            .map { e -> e as FieldError }
+                    val globalErrors = validationErrors.filter { e -> e is GlobalError }
+                            .map { e -> e as GlobalError }
+                    LOG.debug("Validation errors occurred. Global errors = {}, Field errors = {}", globalErrors, fieldErrors)
+                    ErrorResponseModel(globalErrors = globalErrors, fieldErrors = fieldErrors)
+                } else {
+                    try {
+                        handler.process(parsedInput, environment)
+                    } catch (e: FetcherException) {
+                        ErrorResponseModel(globalErrors = e.globalErrors, fieldErrors = e.fieldErrors)
+                    }
                 }
 
                 LOG.debug("Performed mutation {} with input {} giving result {}", environment, input, result)

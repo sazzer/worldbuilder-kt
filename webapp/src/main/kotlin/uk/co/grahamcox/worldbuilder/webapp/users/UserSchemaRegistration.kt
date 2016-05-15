@@ -82,7 +82,8 @@ class UserSchemaRegistration(private val userFinder: UserFinder,
                 .withType("mutateUserResult!")
                 .withFetcher(MutationFetcher(UserCreator(userEditor),
                         UserInput::class.java,
-                        objectMapper))
+                        objectMapper,
+                        listOf(NewUserEmailValidator())))
                 .apply {
                     withArgument("input")
                             .withDescription("The details of the user to create")

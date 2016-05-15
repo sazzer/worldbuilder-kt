@@ -1,11 +1,21 @@
 package uk.co.grahamcox.worldbuilder.webapp
 
 /**
+ * Interface for an error
+ */
+interface Error {
+    /** The error code */
+    val errorCode: String
+    /** The error message */
+    val message: String?
+}
+
+/**
  * Details of a global error that occurred
  * @property errorCode The error code
  * @property message An error message
  */
-data class GlobalError(val errorCode: String, val message: String?)
+data class GlobalError(override val errorCode: String, override val message: String?) : Error
 
 /**
  * Details of a field error that occurred
@@ -13,7 +23,7 @@ data class GlobalError(val errorCode: String, val message: String?)
  * @property field The field the error occurred on
  * @property message An error message
  */
-data class FieldError(val errorCode: String, val field: String, val message: String?)
+data class FieldError(override val errorCode: String, val field: String, override val message: String?) : Error
 
 /**
  * Exception to throw when an error occurred in a Data Fetcher
