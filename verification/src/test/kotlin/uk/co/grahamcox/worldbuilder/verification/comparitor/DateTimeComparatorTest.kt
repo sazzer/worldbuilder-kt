@@ -1,37 +1,24 @@
 package uk.co.grahamcox.worldbuilder.verification.comparitor
 
-import junitparams.JUnitParamsRunner
-import junitparams.Parameters
-import org.junit.Assert
-import org.junit.Test
-import org.junit.runner.RunWith
-import java.time.*
-import kotlin.system.exitProcess
+import java.time.Clock
+import java.time.Duration
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 /**
  * Unit tests for the Date Time Comparator
  */
-@RunWith(JUnitParamsRunner::class)
-class DateTimeComparatorTest {
+class DateTimeComparatorTest : FieldComparatorTestBase() {
     /** The clock to use */
     private val clock = Clock.fixed(ZonedDateTime.of(2016, 5, 15, 10, 5, 0, 0, ZoneId.of("UTC")).toInstant(), ZoneId.of("UTC"))
 
     /** The test subject */
-    private val testSubject = DateTimeComparator(clock)
-
-    /**
-     * Test the cases where the comparison matches
-     */
-    @Test
-    @Parameters(method = "paramsForSuccess")
-    fun testSuccess(expected: String, actual: Any) {
-        Assert.assertTrue(testSubject.compare(expected, actual))
-    }
+    override val testSubject = DateTimeComparator(clock)
 
     /**
      * The parameters for the successful tests
      */
-    fun paramsForSuccess() = listOf(
+    override fun paramsForSuccess() = listOf(
             // Absolute match
             arrayOf(clock.instant().toString(), clock.instant()),
             // Relative matches
@@ -54,18 +41,9 @@ class DateTimeComparatorTest {
     )
 
     /**
-     * Test the cases where the comparison fails
-     */
-    @Test
-    @Parameters(method = "paramsForFailure")
-    fun testFailure(expected: String, actual: Any) {
-        Assert.assertFalse(testSubject.compare(expected, actual))
-    }
-
-    /**
      * The parameters for the failure tests
      */
-    fun paramsForFailure() = listOf(
+    override fun paramsForFailure() = listOf(
             // Absolute match
             arrayOf(clock.instant().plus(Duration.ofSeconds(1)).toString(), clock.instant()),
             // Relative matches
@@ -87,19 +65,9 @@ class DateTimeComparatorTest {
     )
 
     /**
-     * Test the cases where the inputs are invalid
-     */
-    @Test(expected = IllegalArgumentException::class)
-    @Parameters(method = "paramsForError")
-    fun testError(expected: String, actual: Any) {
-        testSubject.compare(expected, actual)
-    }
-
-
-    /**
      * The parameters for the error tests
      */
-    fun paramsForError() = listOf(
+    override fun paramsForError() = listOf(
             arrayOf("invalid time", clock.instant()),
             arrayOf("now", "now")
     )

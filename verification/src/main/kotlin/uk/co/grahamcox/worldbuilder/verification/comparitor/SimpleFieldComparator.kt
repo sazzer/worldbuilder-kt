@@ -37,7 +37,7 @@ class SimpleFieldComparator : FieldComparator {
         }
 
         LOG.debug("Converted input string '{}' to '{}' of type {}", expected, target, valueType)
-        val result = target.equals(target)
+        val result = target.equals(value)
         LOG.debug("Comparison between expected='{}', actual='{}' is {}", expected, value, result)
         return result
     }
