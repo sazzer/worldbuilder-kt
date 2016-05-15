@@ -7,10 +7,12 @@ Feature: Create User
       | Email | graham@grahamcox.co.uk |
     Then the user was created successfully
     And the created user details are:
-      | Name     | Graham                 |
-      | Email    | graham@grahamcox.co.uk |
-      | Enabled  | True                   |
-      | Verified | False                  |
+      | Name     | Graham                     |
+      | Email    | graham@grahamcox.co.uk     |
+      | Enabled  | True                       |
+      | Verified | False                      |
+      | Created  | between now - PT2S and now |
+      | Updated  | between now - PT2S and now |
 
     @ignore
     Scenario: Create an user with a duplicate email

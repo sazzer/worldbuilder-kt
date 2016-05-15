@@ -19,6 +19,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestTemplate
 import uk.co.grahamcox.worldbuilder.verification.graphql.GraphQLClient
 import java.net.URI
+import java.time.Clock
 
 /**
  * The root of the Cucumber Spring configuration
@@ -29,6 +30,12 @@ import java.net.URI
         UserConfig::class
 )
 open class CucumberConfig {
+    /**
+     * Get the clock to use
+     * @return the clock to use
+     */
+    @Bean
+    open fun clock() = Clock.systemUTC()
 
     /**
      * Construct the Jackson Object Mapper to use

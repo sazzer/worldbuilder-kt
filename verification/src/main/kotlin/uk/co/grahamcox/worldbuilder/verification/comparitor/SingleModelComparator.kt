@@ -13,10 +13,17 @@ import uk.co.grahamcox.worldbuilder.verification.DataTableEntry
 data class MissedMatch(val key: String, val expected: String, val actual: Any?)
 
 /**
+ * Definition of a path into the model to compare
+ * @property path The actual JXPath
+ * @property comparator The comparator to use
+ */
+data class FieldPath(val path: String, val comparator: FieldComparator = SimpleFieldComparator())
+
+/**
  * Means to compare a single model object to a list of expected values
  * @property paths Map of the JXPaths to use for reading from the object
  */
-class SingleModelComparator(private val paths: Map<String, String>) {
+class SingleModelComparator(private val paths: Map<String, FieldPath>) {
     companion object {
         /** The logger to use */
         val LOG = LoggerFactory.getLogger(SingleModelComparator::class.java)
@@ -30,7 +37,6 @@ class SingleModelComparator(private val paths: Map<String, String>) {
      */
     fun compare(expected: Collection<DataTableEntry>, actual: Any): List<MissedMatch> {
         val jxpath = JXPathContext.newContext(actual)
-        val defaultComparator = SimpleFieldComparator()
 
         val validEntries = expected.filter {
             if (!paths.containsKey(it.key)) {
@@ -40,9 +46,9 @@ class SingleModelComparator(private val paths: Map<String, String>) {
         }
 
         val missedEntries = validEntries.map {
-            val path = paths[it.key]
-            val value = jxpath.getValue(path)
-            val matches = defaultComparator.compare(it.value, value)
+            val path = paths[it.key]!!
+            val value = jxpath.getValue(path.path)
+            val matches = path.comparator.compare(it.value, value)
 
             if (matches) {
                 null
