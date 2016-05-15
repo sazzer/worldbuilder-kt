@@ -5,6 +5,7 @@ import java.time.Clock
 import java.time.Duration
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.time.format.DateTimeParseException
 
 /**
  * Implementation of the FieldComparator that will compare date/time classes
@@ -32,21 +33,18 @@ class DateTimeComparator(private val clock: Clock) : FieldComparator {
         /** Regex to match a relative time string */
         private val RELATIVE_REGEX = "now${EXACT_TIME_REGEX}${PERIODS_REGEX}"
         
-        /** Regex to match an absolute time */
-        private val ABSOLUTE_TIME_REGEX = "^${RELATIVE_REGEX}$".toRegex()
-
         /** Regex to match an upper limit on the time */
-        private val BEFORE_TIME_REGEX = "^before\\s+(?<time>${RELATIVE_REGEX})$".toRegex()
+        private val BEFORE_TIME_REGEX = "^before\\s+(?<time>.+)$".toRegex()
 
         /** Regex to match a lower limit on the time */
-        private val AFTER_TIME_REGEX = "^after\\s+(?<time>${RELATIVE_REGEX})$".toRegex()
+        private val AFTER_TIME_REGEX = "^after\\s+(?<time>.+)$".toRegex()
         
         /** Regex to match between two times */
         private val BETWEEN_TIMES_REGEX = 
-                "^between\\s+(?<firstTime>${RELATIVE_REGEX})\\s+and\\s+(?<secondTime>${RELATIVE_REGEX})$".toRegex()
+                "^between\\s+(?<firstTime>.+)\\s+and\\s+(?<secondTime>.+)$".toRegex()
         
         /** Regex to match a period offset of a time */
-        private val WITHIN_PERIOD_REGEX = "^(?<time>${RELATIVE_REGEX})\\s+within\\s(?<within>${PERIOD_REGEX})$".toRegex()
+        private val WITHIN_PERIOD_REGEX = "^(?<time>.+)\\s+within\\s(?<within>.+)$".toRegex()
     }
     
     /**
@@ -65,40 +63,44 @@ class DateTimeComparator(private val clock: Clock) : FieldComparator {
             else -> throw IllegalArgumentException("Unable to compare to an object of type ${value.javaClass}")
         }
         
-        val (lower, upper) = if (ABSOLUTE_TIME_REGEX.matches(expected)) {
-            val absoluteTime = parseAbsoluteTime(expected)
-            Pair(absoluteTime, absoluteTime)
-        } else if (BEFORE_TIME_REGEX.matches(expected)) {
-            val timeString = BEFORE_TIME_REGEX.toPattern().matcher(expected).group("time")
+        val (lower, upper) = if (BEFORE_TIME_REGEX.matches(expected)) {
+            val matcher = BEFORE_TIME_REGEX.toPattern().matcher(expected)
+            matcher.matches()
+            val timeString = matcher.group("time")
             val absoluteTime = parseAbsoluteTime(timeString)
             Pair(null, absoluteTime)
         } else if (AFTER_TIME_REGEX.matches(expected)) {
-            val timeString = AFTER_TIME_REGEX.toPattern().matcher(expected).group("time")
+            val matcher = AFTER_TIME_REGEX.toPattern().matcher(expected)
+            matcher.matches()
+            val timeString = matcher.group("time")
             val absoluteTime = parseAbsoluteTime(timeString)
             Pair(absoluteTime, null)
         } else if (BETWEEN_TIMES_REGEX.matches(expected)) {
             val matcher = BETWEEN_TIMES_REGEX.toPattern().matcher(expected)
+            matcher.matches()
             val firstTime = parseAbsoluteTime(matcher.group("firstTime"))
             val secondTime = parseAbsoluteTime(matcher.group("secondTime"))
             Pair(firstTime, secondTime)
         } else if (WITHIN_PERIOD_REGEX.matches(expected)) {
             val matcher = WITHIN_PERIOD_REGEX.toPattern().matcher(expected)
+            matcher.matches()
             val time = parseAbsoluteTime(matcher.group("time"))
             val within = matcher.group("within")
             val duration = Duration.parse(within)
 
             Pair(time.minus(duration), time.plus(duration))
         } else {
-            throw IllegalArgumentException("Expected string doesn't match any valid inputs")
+            val absoluteTime = parseAbsoluteTime(expected)
+            Pair(absoluteTime, absoluteTime)
         }
 
         LOG.debug("Comparing actual time {} to lower bound {} and upper bound {}", instant, lower, upper)
 
-        return if (lower != null && lower.isBefore(instant)) {
-            LOG.debug("Lower bound {} is before actual time {}", lower, instant)
+        return if (lower != null && lower.isAfter(instant)) {
+            LOG.debug("Lower bound {} is after actual time {}", lower, instant)
             false
-        } else if (upper != null && upper.isAfter(instant)) {
-            LOG.debug("Upper bound {} is after actual time {}", upper, instant)
+        } else if (upper != null && upper.isBefore(instant)) {
+            LOG.debug("Upper bound {} is before actual time {}", upper, instant)
             false
         } else {
             true
@@ -144,7 +146,11 @@ class DateTimeComparator(private val clock: Clock) : FieldComparator {
             result
         } else {
             LOG.debug("Input string {} is being processed as an absolute time string", input)
-            ZonedDateTime.parse(input)
+            try {
+                ZonedDateTime.parse(input)
+            } catch (e: DateTimeParseException) {
+                throw IllegalArgumentException("Input string was not a valid absolute time: ${input}", e)
+            }
         }
 
         return processedTime.toInstant()
